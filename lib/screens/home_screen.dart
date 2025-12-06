@@ -1,7 +1,24 @@
 import 'package:flutter/material.dart';
-import 'add_item_screen.dart';  // Assuming this screen is where users can add items
+import 'add_item_screen.dart';
+import 'chat_screen.dart';
+import 'my_items_screen.dart';
+import 'profile_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int _currentIndex = 0;
+
+  final List<Widget> _pages = [
+    HomeScreen(), // Use HomeScreen here instead of HomePage
+    ChatScreen(itemTitle: 'Sample Item'), // Pass an argument if needed
+    MyItemsScreen(),
+    ProfileScreen(),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -11,7 +28,6 @@ class HomeScreen extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.add),
             onPressed: () {
-              // Navigate to Add Item Screen
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => AddItemScreen()),
@@ -19,27 +35,19 @@ class HomeScreen extends StatelessWidget {
             },
           ),
         ],
+        iconTheme: IconThemeData(color: Colors.white),
       ),
-      body: GridView.builder(
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,  // Adjust the number of columns
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
-        ),
-        itemCount: 10,  // For example, you can dynamically load the number of items
-        itemBuilder: (context, index) {
-          return Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              image: DecorationImage(
-                image: AssetImage('assets/logo.jpg'),  // Use dynamic image data
-                fit: BoxFit.cover,
-              ),
-            ),
-          );
-        },
-      ),
+      backgroundColor: Color(0xFFBDFF6C),
+      body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -58,9 +66,6 @@ class HomeScreen extends StatelessWidget {
             label: 'Profile',
           ),
         ],
-        onTap: (index) {
-          // Handle navigation logic
-        },
       ),
     );
   }

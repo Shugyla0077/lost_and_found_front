@@ -1,18 +1,17 @@
-// lib/screens/chat_screen.dart
+// chat_screen.dart
 import 'package:flutter/material.dart';
 
 class ChatScreen extends StatelessWidget {
   final String itemTitle;
 
-  ChatScreen({required this.itemTitle});
+  // Constructor accepting itemTitle as an argument
+  ChatScreen({Key? key, required this.itemTitle}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Chat about "$itemTitle"')),
-      body: Center(
-        child: Text('Chat functionality will be added later'),
-      ),
+      appBar: AppBar(title: Text('Chats')),
+      body: Center(child: Text('Chat about: $itemTitle')),
     );
   }
 }
