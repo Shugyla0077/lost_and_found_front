@@ -1,9 +1,9 @@
-// lib/screens/login_screen.dart
+// lib/screens/auth_screen.dart
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import '../services/auth_service.dart';
 
-class LoginScreen extends StatelessWidget {
+class AuthScreen extends StatelessWidget {
   final AuthService authService = GetIt.I<AuthService>();
 
   @override
@@ -12,7 +12,7 @@ class LoginScreen extends StatelessWidget {
     final passwordController = TextEditingController();
 
     return Scaffold(
-      appBar: AppBar(title: Text('Login')),
+      appBar: AppBar(title: Text('Register')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -28,24 +28,18 @@ class LoginScreen extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () async {
-                bool success = await authService.login(
+                bool success = await authService.register(
                   usernameController.text,
                   passwordController.text,
                 );
                 if (success) {
-                  Navigator.pushReplacementNamed(context, '/home');
+                  Navigator.pushReplacementNamed(context, '/login');
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Invalid credentials')));
+                      SnackBar(content: Text('Registration failed')));
                 }
               },
-              child: Text('Login'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/auth');
-              },
-              child: Text('Don\'t have an account? Register here'),
+              child: Text('Register'),
             ),
           ],
         ),
