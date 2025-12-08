@@ -1,12 +1,12 @@
-// my_items_screen.dart
+// profile_screen.dart
 import 'package:flutter/material.dart';
 
-class MyItemsScreen extends StatelessWidget {
+class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('My Items')),
-      body: Center(child: Text('My Items Page')),
+      appBar: AppBar(title: Text('Profile')),
+      body: Center(child: Text('Profile Page')),
     );
   }
 }
