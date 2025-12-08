@@ -16,7 +16,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // List of widgets for different screens (pages)
   final List<Widget> _pages = [
     HomePage(),  // Assuming this is the home page widget
-    ChatScreen(),  // Your Chat screen
+    ChatScreen(itemTitle: 'Chat Screen',),  // Your Chat screen
     MyItemsScreen(),  // Your My Items screen
     ProfileScreen(),  // Your Profile screen
   ];
