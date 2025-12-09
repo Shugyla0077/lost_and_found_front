@@ -1,9 +1,7 @@
+// home_screen.dart
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';  // Import cached image package
-import 'add_item_screen.dart';  // Assuming this screen is where users can add items
-import 'chat_screen.dart';  // Assuming this is your Chat screen
-import 'my_items_screen.dart';  // Assuming this is your My Items screen
-import 'profile_screen.dart';  // Assuming this is your Profile screen
+import 'package:get_it/get_it.dart';
+import 'screens/chat_screen.dart';  // Import ChatScreen only here
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -13,22 +11,12 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  // List of widgets for different screens (pages)
   final List<Widget> _pages = [
-    HomePage(),  // Assuming this is the home page widget
-    ChatScreen(itemTitle: 'Chat Screen',),  // Your Chat screen
-    MyItemsScreen(),  // Your My Items screen
-    ProfileScreen(),  // Your Profile screen
+    HomePage(), // HomePage screen
+    ChatScreen(itemTitle: 'Sample Chat'),  // ChatScreen widget with a sample item title
+    MyItemsScreen(),  // My Items screen
+    ProfileScreen(),  // Profile screen
   ];
-
-  // Example items list for GridView
-  final List<String> items = List.generate(20, (index) => 'Item $index');
-
-  @override
-  void dispose() {
-    // Dispose any controllers or resources if needed
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,24 +27,25 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: Icon(Icons.add),
             onPressed: () {
-              Navigator.push(
+              // Navigate to ChatScreen using named route
+              Navigator.pushNamed(
                 context,
-                MaterialPageRoute(builder: (context) => AddItemScreen()),
+                '/chat',
+                arguments: 'Some Title',  // Pass any arguments here if necessary
               );
             },
           ),
         ],
-        iconTheme: IconThemeData(color: Colors.white),
       ),
       backgroundColor: Color(0xFFBDFF6C),
-      body: _pages[_currentIndex],  // Display current page
+      body: _pages[_currentIndex],  // Display the page based on _currentIndex
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         selectedItemColor: Colors.blue,
         unselectedItemColor: Colors.grey,
         onTap: (index) {
           setState(() {
-            _currentIndex = index;
+            _currentIndex = index;  // Change the selected tab index
           });
         },
         items: [
@@ -85,30 +74,31 @@ class _HomeScreenState extends State<HomeScreen> {
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,  // Adjust for the number of columns
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
+    return Center(
+      child: Text(
+        'Welcome to Lost & Found',
+        style: TextStyle(fontSize: 24),
       ),
-      itemCount: 20,  // Adjust this based on the number of items you need
-      itemBuilder: (context, index) {
-        // Example: Loading images efficiently
-        return CachedNetworkImage(
-          imageUrl: 'https://example.com/image.jpg', // Replace with actual image URL
-          placeholder: (context, url) => Center(child: CircularProgressIndicator()),
-          errorWidget: (context, url, error) => Icon(Icons.error),
-          imageBuilder: (context, imageProvider) => Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              image: DecorationImage(
-                image: imageProvider,
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-        );
-      },
+    );
+  }
+}
+
+class MyItemsScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('My Items')),
+      body: Center(child: Text('This is the My Items page')),
+    );
+  }
+}
+
+class ProfileScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Profile')),
+      body: Center(child: Text('This is the Profile page')),
     );
   }
 }
