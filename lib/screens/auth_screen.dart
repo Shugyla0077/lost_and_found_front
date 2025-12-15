@@ -3,14 +3,32 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import '../services/auth_service.dart';
 
-class AuthScreen extends StatelessWidget {
+class AuthScreen extends StatefulWidget {
+  @override
+  State<AuthScreen> createState() => _AuthScreenState();
+}
+
+class _AuthScreenState extends State<AuthScreen> {
   final AuthService authService = GetIt.I<AuthService>();
+  late final TextEditingController usernameController;
+  late final TextEditingController passwordController;
+
+  @override
+  void initState() {
+    super.initState();
+    usernameController = TextEditingController();
+    passwordController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    usernameController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final usernameController = TextEditingController();
-    final passwordController = TextEditingController();
-
     return Scaffold(
       appBar: AppBar(title: Text('Register')),
       body: Padding(
@@ -36,7 +54,8 @@ class AuthScreen extends StatelessWidget {
                   Navigator.pushReplacementNamed(context, '/login');
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Registration failed')));
+                    SnackBar(content: Text('Registration failed')),
+                  );
                 }
               },
               child: Text('Register'),

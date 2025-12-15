@@ -4,14 +4,32 @@ import 'package:get_it/get_it.dart';
 import '../services/item_service.dart';
 import '../models/item.dart';
 
-class AddItemScreen extends StatelessWidget {
+class AddItemScreen extends StatefulWidget {
+  @override
+  State<AddItemScreen> createState() => _AddItemScreenState();
+}
+
+class _AddItemScreenState extends State<AddItemScreen> {
   final ItemService itemService = GetIt.I<ItemService>();
+  late final TextEditingController titleController;
+  late final TextEditingController descriptionController;
+
+  @override
+  void initState() {
+    super.initState();
+    titleController = TextEditingController();
+    descriptionController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    titleController.dispose();
+    descriptionController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final titleController = TextEditingController();
-    final descriptionController = TextEditingController();
-
     return Scaffold(
       appBar: AppBar(title: Text('Add Item')),
       body: Padding(
