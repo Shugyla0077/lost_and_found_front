@@ -1,7 +1,7 @@
 // home_screen.dart
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'screens/chat_screen.dart';  // Import ChatScreen only here
+import 'chat_screen.dart';  // Import ChatScreen only here
 
 class HomeScreen extends StatefulWidget {
   @override
