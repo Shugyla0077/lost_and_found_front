@@ -1,21 +1,29 @@
-// lib/services/auth_service.dart
+import 'package:firebase_auth/firebase_auth.dart';
+
 abstract class AuthService {
-  Future<bool> login(String username, String password);
-  Future<bool> register(String username, String password);
+  Future<UserCredential> login(String email, String password);
+  Future<UserCredential> register(String email, String password);
+  Future<void> logout();
 }
 
 class AuthServiceImpl implements AuthService {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   @override
-  Future<bool> login(String username, String password) async {
-    // Логика для логина (в реальном приложении сюда добавляем вызовы API)
-    await Future.delayed(Duration(seconds: 1)); // имитация задержки
-    return username == 'user' && password == 'password'; // Пример успешного логина
+  Future<UserCredential> login(String email, String password) {
+    return _auth.signInWithEmailAndPassword(email: email, password: password);
   }
 
   @override
-  Future<bool> register(String username, String password) async {
-    // Логика для регистрации
-    await Future.delayed(Duration(seconds: 1)); // имитация задержки
-    return true;
+  Future<UserCredential> register(String email, String password) {
+    return _auth.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+  }
+
+  @override
+  Future<void> logout() {
+    return _auth.signOut();
   }
 }

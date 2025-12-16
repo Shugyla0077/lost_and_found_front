@@ -2,16 +2,39 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import '../services/item_service.dart';
-import '../models/item.dart';
 
-class AddItemScreen extends StatelessWidget {
+class AddItemScreen extends StatefulWidget {
+  @override
+  State<AddItemScreen> createState() => _AddItemScreenState();
+}
+
+class _AddItemScreenState extends State<AddItemScreen> {
   final ItemService itemService = GetIt.I<ItemService>();
+  late final TextEditingController titleController;
+  late final TextEditingController descriptionController;
+  late final TextEditingController locationController;
+  late final TextEditingController finderContactController;
+
+  @override
+  void initState() {
+    super.initState();
+    titleController = TextEditingController();
+    descriptionController = TextEditingController();
+    locationController = TextEditingController();
+    finderContactController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    titleController.dispose();
+    descriptionController.dispose();
+    locationController.dispose();
+    finderContactController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final titleController = TextEditingController();
-    final descriptionController = TextEditingController();
-
     return Scaffold(
       appBar: AppBar(title: Text('Add Item')),
       body: Padding(
@@ -26,18 +49,28 @@ class AddItemScreen extends StatelessWidget {
               controller: descriptionController,
               decoration: InputDecoration(labelText: 'Description'),
             ),
+            TextField(
+              controller: locationController,
+              decoration: InputDecoration(labelText: 'Location'),
+            ),
+            TextField(
+              controller: finderContactController,
+              decoration: InputDecoration(labelText: 'Your contact'),
+            ),
             ElevatedButton(
               onPressed: () async {
-                final newItem = Item(
-                  title: titleController.text,
-                  description: descriptionController.text,
-                );
-                bool success = await itemService.addItem(newItem);
-                if (success) {
+                try {
+                  await itemService.addItem(
+                    title: titleController.text,
+                    description: descriptionController.text,
+                    location: locationController.text,
+                    finderContact: finderContactController.text,
+                  );
+                  if (!mounted) return;
                   Navigator.pop(context);
-                } else {
+                } catch (e) {
                   ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text('Failed to add item')));
+                      .showSnackBar(SnackBar(content: Text('Failed to add item: $e')));
                 }
               },
               child: Text('Add Item'),

@@ -1,15 +1,14 @@
-// lib/screens/login_screen.dart
-import 'package:firebase_auth/firebase_auth.dart';
+// lib/screens/auth_screen.dart
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import '../services/auth_service.dart';
 
-class LoginScreen extends StatefulWidget {
+class AuthScreen extends StatefulWidget {
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<AuthScreen> createState() => _AuthScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _AuthScreenState extends State<AuthScreen> {
   final AuthService authService = GetIt.I<AuthService>();
   late final TextEditingController emailController;
   late final TextEditingController passwordController;
@@ -31,7 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Login')),
+      appBar: AppBar(title: Text('Register')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -48,29 +47,19 @@ class _LoginScreenState extends State<LoginScreen> {
             ElevatedButton(
               onPressed: () async {
                 try {
-                  await authService.login(
+                  await authService.register(
                     emailController.text.trim(),
                     passwordController.text,
                   );
-                  final t = await FirebaseAuth.instance.currentUser!.getIdToken(true);
-                  debugPrint('ID_TOKEN: $t');
-                child: Text('Print token');
-
                   if (!mounted) return;
-                  Navigator.pushReplacementNamed(context, '/home');
+                  Navigator.pushReplacementNamed(context, '/login');
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Login failed: $e')),
+                    SnackBar(content: Text('Registration failed: $e')),
                   );
                 }
               },
-              child: Text('Login'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/auth');
-              },
-              child: Text('Don\'t have an account? Register here'),
+              child: Text('Register'),
             ),
           ],
         ),
