@@ -1,4 +1,5 @@
 // lib/screens/login_screen.dart
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import '../services/auth_service.dart';
@@ -10,19 +11,19 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final AuthService authService = GetIt.I<AuthService>();
-  late final TextEditingController usernameController;
+  late final TextEditingController emailController;
   late final TextEditingController passwordController;
 
   @override
   void initState() {
     super.initState();
-    usernameController = TextEditingController();
+    emailController = TextEditingController();
     passwordController = TextEditingController();
   }
 
   @override
   void dispose() {
-    usernameController.dispose();
+    emailController.dispose();
     passwordController.dispose();
     super.dispose();
   }
@@ -36,8 +37,8 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(
           children: [
             TextField(
-              controller: usernameController,
-              decoration: InputDecoration(labelText: 'Username'),
+              controller: emailController,
+              decoration: InputDecoration(labelText: 'Email'),
             ),
             TextField(
               controller: passwordController,
@@ -46,15 +47,20 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             ElevatedButton(
               onPressed: () async {
-                bool success = await authService.login(
-                  usernameController.text,
-                  passwordController.text,
-                );
-                if (success) {
+                try {
+                  await authService.login(
+                    emailController.text.trim(),
+                    passwordController.text,
+                  );
+                  final t = await FirebaseAuth.instance.currentUser!.getIdToken(true);
+                  debugPrint('ID_TOKEN: $t');
+                child: Text('Print token');
+
+                  if (!mounted) return;
                   Navigator.pushReplacementNamed(context, '/home');
-                } else {
+                } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Invalid credentials')),
+                    SnackBar(content: Text('Login failed: $e')),
                   );
                 }
               },

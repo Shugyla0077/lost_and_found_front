@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'models/item.dart';
 import 'screens/login_screen.dart';
-import 'screens/home_screen.dart';  // Import HomeScreen here
+import 'screens/home_screen.dart';
 import 'screens/add_item_screen.dart';
 import 'screens/auth_screen.dart';
 import 'screens/item_detail_screen.dart';
-import 'screens/chat_screen.dart';  // Import ChatScreen only here
+import 'screens/chat_screen.dart';
 import 'utils/injector.dart';
+import 'firebase_options.dart';
 
-void main() {
-  setup(); // Dependency Injection setup
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  setup();
   runApp(MyApp());
 }
 

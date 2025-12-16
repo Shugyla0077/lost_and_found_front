@@ -10,19 +10,19 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   final AuthService authService = GetIt.I<AuthService>();
-  late final TextEditingController usernameController;
+  late final TextEditingController emailController;
   late final TextEditingController passwordController;
 
   @override
   void initState() {
     super.initState();
-    usernameController = TextEditingController();
+    emailController = TextEditingController();
     passwordController = TextEditingController();
   }
 
   @override
   void dispose() {
-    usernameController.dispose();
+    emailController.dispose();
     passwordController.dispose();
     super.dispose();
   }
@@ -36,8 +36,8 @@ class _AuthScreenState extends State<AuthScreen> {
         child: Column(
           children: [
             TextField(
-              controller: usernameController,
-              decoration: InputDecoration(labelText: 'Username'),
+              controller: emailController,
+              decoration: InputDecoration(labelText: 'Email'),
             ),
             TextField(
               controller: passwordController,
@@ -46,15 +46,16 @@ class _AuthScreenState extends State<AuthScreen> {
             ),
             ElevatedButton(
               onPressed: () async {
-                bool success = await authService.register(
-                  usernameController.text,
-                  passwordController.text,
-                );
-                if (success) {
+                try {
+                  await authService.register(
+                    emailController.text.trim(),
+                    passwordController.text,
+                  );
+                  if (!mounted) return;
                   Navigator.pushReplacementNamed(context, '/login');
-                } else {
+                } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Registration failed')),
+                    SnackBar(content: Text('Registration failed: $e')),
                   );
                 }
               },
