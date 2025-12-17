@@ -49,6 +49,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noAccountRegister => 'Don\'t have an account? Register here';
 
   @override
+  String get forgotPassword => 'Forgot password?';
+
+  @override
+  String get resetPassword => 'Reset password';
+
+  @override
+  String get resetPasswordHint =>
+      'Enter your email and we’ll send a reset link.';
+
+  @override
+  String get sendResetLink => 'Send link';
+
+  @override
+  String get emailRequired => 'Email is required';
+
+  @override
+  String get passwordResetEmailSent => 'Reset email sent. Check your inbox.';
+
+  @override
+  String passwordResetFailed(Object error) {
+    return 'Failed to send reset email: $error';
+  }
+
+  @override
   String get addItem => 'Add Item';
 
   @override
@@ -209,6 +233,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get save => 'Save';
 
   @override
+  String get edit => 'Edit';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
   String get logout => 'Logout';
 
   @override
@@ -222,4 +252,90 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get kazakh => 'Kazakh';
+
+  @override
+  String get category => 'Category';
+
+  @override
+  String get filters => 'Filters';
+
+  @override
+  String get resetFilters => 'Reset';
+
+  @override
+  String get applyFilters => 'Apply';
+
+  @override
+  String get clear => 'Clear';
+
+  @override
+  String get allCategories => 'All categories';
+
+  @override
+  String get dateFrom => 'From';
+
+  @override
+  String get dateTo => 'To';
+
+  @override
+  String get noItemsMatchFilter => 'No items match your filters';
+
+  @override
+  String get titleRequired => 'Title is required';
+
+  @override
+  String get claimedItems => 'Claimed items';
+
+  @override
+  String get viewClaimedItems => 'View your claimed items list';
+
+  @override
+  String get noClaimedItemsYet => 'No claimed items yet';
+
+  @override
+  String failedToLoadClaimedItems(Object error) {
+    return 'Failed to load claimed items: $error';
+  }
+
+  @override
+  String get rewardPayment => 'Reward payment';
+
+  @override
+  String get rewardPaymentSubtitle => 'Open Stripe Checkout to pay a reward';
+
+  @override
+  String get chooseAmount => 'Choose amount';
+
+  @override
+  String amountUsd(Object amount) {
+    return '$amount USD';
+  }
+
+  @override
+  String get customAmountUsd => 'Custom amount (USD)';
+
+  @override
+  String get pay => 'Pay';
+
+  @override
+  String get invalidAmount => 'Enter a valid amount';
+
+  @override
+  String amountRange(Object max, Object min) {
+    return 'Allowed range: $min..$max USD';
+  }
+
+  @override
+  String get failedToOpenCheckout => 'Failed to open Stripe Checkout';
+
+  @override
+  String paymentFailed(Object error) {
+    return 'Payment failed: $error';
+  }
+
+  @override
+  String get paymentThanks => 'Thanks for your payment!';
+
+  @override
+  String get paymentCanceled => 'Payment canceled';
 }

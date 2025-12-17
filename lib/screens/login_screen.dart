@@ -16,6 +16,68 @@ class _LoginScreenState extends State<LoginScreen> {
   late final TextEditingController emailController;
   late final TextEditingController passwordController;
 
+  Future<void> _resetPassword() async {
+    final initialEmail = emailController.text.trim();
+    final controller = TextEditingController(text: initialEmail);
+
+    final email = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(context.l10n.resetPassword),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                context.l10n.resetPasswordHint,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: controller,
+                decoration: InputDecoration(labelText: context.l10n.email),
+                keyboardType: TextInputType.emailAddress,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(context.l10n.cancel),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, controller.text.trim()),
+              child: Text(context.l10n.sendResetLink),
+            ),
+          ],
+        );
+      },
+    );
+
+    controller.dispose();
+
+    if (!mounted || email == null) return;
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.emailRequired)),
+      );
+      return;
+    }
+
+    try {
+      await authService.sendPasswordResetEmail(email);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.passwordResetEmailSent)),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.passwordResetFailed(e.toString()))),
+      );
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -66,6 +128,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 }
               },
               child: Text(context.l10n.login),
+            ),
+            TextButton(
+              onPressed: _resetPassword,
+              child: Text(context.l10n.forgotPassword),
             ),
             TextButton(
               onPressed: () {

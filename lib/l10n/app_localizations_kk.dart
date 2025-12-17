@@ -49,6 +49,31 @@ class AppLocalizationsKk extends AppLocalizations {
   String get noAccountRegister => 'Аккаунт жоқ па? Тіркеліңіз';
 
   @override
+  String get forgotPassword => 'Құпиясөзді ұмыттыңыз ба?';
+
+  @override
+  String get resetPassword => 'Құпиясөзді қалпына келтіру';
+
+  @override
+  String get resetPasswordHint =>
+      'Email енгізіңіз — біз қалпына келтіру сілтемесін жібереміз.';
+
+  @override
+  String get sendResetLink => 'Сілтемені жіберу';
+
+  @override
+  String get emailRequired => 'Email міндетті';
+
+  @override
+  String get passwordResetEmailSent =>
+      'Қалпына келтіру хаты жіберілді. Поштаны тексеріңіз.';
+
+  @override
+  String passwordResetFailed(Object error) {
+    return 'Хатты жіберу мүмкін болмады: $error';
+  }
+
+  @override
   String get addItem => 'Зат қосу';
 
   @override
@@ -211,6 +236,12 @@ class AppLocalizationsKk extends AppLocalizations {
   String get save => 'Сақтау';
 
   @override
+  String get edit => 'Өзгерту';
+
+  @override
+  String get cancel => 'Бас тарту';
+
+  @override
   String get logout => 'Шығу';
 
   @override
@@ -224,4 +255,90 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get kazakh => 'Қазақша';
+
+  @override
+  String get category => 'Санат';
+
+  @override
+  String get filters => 'Сүзгілер';
+
+  @override
+  String get resetFilters => 'Тазалау';
+
+  @override
+  String get applyFilters => 'Қолдану';
+
+  @override
+  String get clear => 'Тазарту';
+
+  @override
+  String get allCategories => 'Барлық санаттар';
+
+  @override
+  String get dateFrom => 'Бастап';
+
+  @override
+  String get dateTo => 'Дейін';
+
+  @override
+  String get noItemsMatchFilter => 'Сүзгіге сәйкес заттар жоқ';
+
+  @override
+  String get titleRequired => 'Атауы міндетті';
+
+  @override
+  String get claimedItems => 'Алынған заттар';
+
+  @override
+  String get viewClaimedItems => 'Алынған заттар тізімін ашу';
+
+  @override
+  String get noClaimedItemsYet => 'Әзірге алынған заттар жоқ';
+
+  @override
+  String failedToLoadClaimedItems(Object error) {
+    return 'Алынған заттарды жүктеу мүмкін болмады: $error';
+  }
+
+  @override
+  String get rewardPayment => 'Сыйақы төлеу';
+
+  @override
+  String get rewardPaymentSubtitle => 'Төлеу үшін Stripe Checkout ашу';
+
+  @override
+  String get chooseAmount => 'Соманы таңдаңыз';
+
+  @override
+  String amountUsd(Object amount) {
+    return '$amount USD';
+  }
+
+  @override
+  String get customAmountUsd => 'Өз сомаңыз (USD)';
+
+  @override
+  String get pay => 'Төлеу';
+
+  @override
+  String get invalidAmount => 'Дұрыс соманы енгізіңіз';
+
+  @override
+  String amountRange(Object max, Object min) {
+    return 'Рұқсат етілгені: $min..$max USD';
+  }
+
+  @override
+  String get failedToOpenCheckout => 'Stripe Checkout ашу мүмкін болмады';
+
+  @override
+  String paymentFailed(Object error) {
+    return 'Төлем қатесі: $error';
+  }
+
+  @override
+  String get paymentThanks => 'Төлеміңізге рақмет!';
+
+  @override
+  String get paymentCanceled => 'Төлем тоқтатылды';
 }

@@ -172,6 +172,48 @@ abstract class AppLocalizations {
   /// **'Don\'t have an account? Register here'**
   String get noAccountRegister;
 
+  /// No description provided for @forgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get forgotPassword;
+
+  /// No description provided for @resetPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset password'**
+  String get resetPassword;
+
+  /// No description provided for @resetPasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email and we’ll send a reset link.'**
+  String get resetPasswordHint;
+
+  /// No description provided for @sendResetLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Send link'**
+  String get sendResetLink;
+
+  /// No description provided for @emailRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Email is required'**
+  String get emailRequired;
+
+  /// No description provided for @passwordResetEmailSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset email sent. Check your inbox.'**
+  String get passwordResetEmailSent;
+
+  /// No description provided for @passwordResetFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to send reset email: {error}'**
+  String passwordResetFailed(Object error);
+
   /// No description provided for @addItem.
   ///
   /// In en, this message translates to:
@@ -442,6 +484,18 @@ abstract class AppLocalizations {
   /// **'Save'**
   String get save;
 
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
   /// No description provided for @logout.
   ///
   /// In en, this message translates to:
@@ -471,6 +525,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Kazakh'**
   String get kazakh;
+
+  /// No description provided for @category.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get category;
+
+  /// No description provided for @filters.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get filters;
+
+  /// No description provided for @resetFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get resetFilters;
+
+  /// No description provided for @applyFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get applyFilters;
+
+  /// No description provided for @clear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get clear;
+
+  /// No description provided for @allCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'All categories'**
+  String get allCategories;
+
+  /// No description provided for @dateFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get dateFrom;
+
+  /// No description provided for @dateTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get dateTo;
+
+  /// No description provided for @noItemsMatchFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'No items match your filters'**
+  String get noItemsMatchFilter;
+
+  /// No description provided for @titleRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Title is required'**
+  String get titleRequired;
+
+  /// No description provided for @claimedItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Claimed items'**
+  String get claimedItems;
+
+  /// No description provided for @viewClaimedItems.
+  ///
+  /// In en, this message translates to:
+  /// **'View your claimed items list'**
+  String get viewClaimedItems;
+
+  /// No description provided for @noClaimedItemsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No claimed items yet'**
+  String get noClaimedItemsYet;
+
+  /// No description provided for @failedToLoadClaimedItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load claimed items: {error}'**
+  String failedToLoadClaimedItems(Object error);
+
+  /// No description provided for @rewardPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward payment'**
+  String get rewardPayment;
+
+  /// No description provided for @rewardPaymentSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Stripe Checkout to pay a reward'**
+  String get rewardPaymentSubtitle;
+
+  /// No description provided for @chooseAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose amount'**
+  String get chooseAmount;
+
+  /// No description provided for @amountUsd.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} USD'**
+  String amountUsd(Object amount);
+
+  /// No description provided for @customAmountUsd.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom amount (USD)'**
+  String get customAmountUsd;
+
+  /// No description provided for @pay.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay'**
+  String get pay;
+
+  /// No description provided for @invalidAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid amount'**
+  String get invalidAmount;
+
+  /// No description provided for @amountRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Allowed range: {min}..{max} USD'**
+  String amountRange(Object max, Object min);
+
+  /// No description provided for @failedToOpenCheckout.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to open Stripe Checkout'**
+  String get failedToOpenCheckout;
+
+  /// No description provided for @paymentFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment failed: {error}'**
+  String paymentFailed(Object error);
+
+  /// No description provided for @paymentThanks.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks for your payment!'**
+  String get paymentThanks;
+
+  /// No description provided for @paymentCanceled.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment canceled'**
+  String get paymentCanceled;
 }
 
 class _AppLocalizationsDelegate

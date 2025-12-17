@@ -49,6 +49,31 @@ class AppLocalizationsRu extends AppLocalizations {
   String get noAccountRegister => 'Нет аккаунта? Зарегистрируйтесь';
 
   @override
+  String get forgotPassword => 'Забыли пароль?';
+
+  @override
+  String get resetPassword => 'Сброс пароля';
+
+  @override
+  String get resetPasswordHint =>
+      'Введите email — мы отправим ссылку для сброса пароля.';
+
+  @override
+  String get sendResetLink => 'Отправить ссылку';
+
+  @override
+  String get emailRequired => 'Email обязателен';
+
+  @override
+  String get passwordResetEmailSent =>
+      'Письмо для сброса отправлено. Проверьте почту.';
+
+  @override
+  String passwordResetFailed(Object error) {
+    return 'Не удалось отправить письмо: $error';
+  }
+
+  @override
   String get addItem => 'Добавить вещь';
 
   @override
@@ -209,6 +234,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get save => 'Сохранить';
 
   @override
+  String get edit => 'Изменить';
+
+  @override
+  String get cancel => 'Отмена';
+
+  @override
   String get logout => 'Выйти';
 
   @override
@@ -222,4 +253,90 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get kazakh => 'Казахский';
+
+  @override
+  String get category => 'Категория';
+
+  @override
+  String get filters => 'Фильтры';
+
+  @override
+  String get resetFilters => 'Сбросить';
+
+  @override
+  String get applyFilters => 'Применить';
+
+  @override
+  String get clear => 'Очистить';
+
+  @override
+  String get allCategories => 'Все категории';
+
+  @override
+  String get dateFrom => 'От';
+
+  @override
+  String get dateTo => 'До';
+
+  @override
+  String get noItemsMatchFilter => 'Нет вещей по заданным фильтрам';
+
+  @override
+  String get titleRequired => 'Название обязательно';
+
+  @override
+  String get claimedItems => 'Забранные вещи';
+
+  @override
+  String get viewClaimedItems => 'Открыть список забранных вещей';
+
+  @override
+  String get noClaimedItemsYet => 'Забранных вещей пока нет';
+
+  @override
+  String failedToLoadClaimedItems(Object error) {
+    return 'Не удалось загрузить забранные вещи: $error';
+  }
+
+  @override
+  String get rewardPayment => 'Оплата вознаграждения';
+
+  @override
+  String get rewardPaymentSubtitle => 'Открыть Stripe Checkout для оплаты';
+
+  @override
+  String get chooseAmount => 'Выберите сумму';
+
+  @override
+  String amountUsd(Object amount) {
+    return '$amount USD';
+  }
+
+  @override
+  String get customAmountUsd => 'Своя сумма (USD)';
+
+  @override
+  String get pay => 'Оплатить';
+
+  @override
+  String get invalidAmount => 'Введите корректную сумму';
+
+  @override
+  String amountRange(Object max, Object min) {
+    return 'Допустимо: $min..$max USD';
+  }
+
+  @override
+  String get failedToOpenCheckout => 'Не удалось открыть Stripe Checkout';
+
+  @override
+  String paymentFailed(Object error) {
+    return 'Ошибка оплаты: $error';
+  }
+
+  @override
+  String get paymentThanks => 'Спасибо за оплату!';
+
+  @override
+  String get paymentCanceled => 'Оплата отменена';
 }
