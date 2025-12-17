@@ -54,7 +54,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   );
                   final t = await FirebaseAuth.instance.currentUser!.getIdToken(true);
                   debugPrint('ID_TOKEN: $t');
-                child: Text('Print token');
 
                   if (!mounted) return;
                   Navigator.pushReplacementNamed(context, '/home');

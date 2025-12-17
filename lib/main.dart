@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
         '/addItem': (context) => AddItemScreen(),
         '/auth': (context) => AuthScreen(),
         '/itemDetail': (context) => ItemDetailScreen(item: ModalRoute.of(context)!.settings.arguments as Item),
-        '/chat': (context) => ChatScreen(itemTitle: ModalRoute.of(context)!.settings.arguments as String), // ChatScreen route
+        '/chat': (context) => ChatScreen(), // ChatScreen route
       },
     );
   }

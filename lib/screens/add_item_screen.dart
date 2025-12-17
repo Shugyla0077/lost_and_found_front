@@ -13,7 +13,6 @@ class _AddItemScreenState extends State<AddItemScreen> {
   late final TextEditingController titleController;
   late final TextEditingController descriptionController;
   late final TextEditingController locationController;
-  late final TextEditingController finderContactController;
 
   @override
   void initState() {
@@ -21,7 +20,6 @@ class _AddItemScreenState extends State<AddItemScreen> {
     titleController = TextEditingController();
     descriptionController = TextEditingController();
     locationController = TextEditingController();
-    finderContactController = TextEditingController();
   }
 
   @override
@@ -29,7 +27,6 @@ class _AddItemScreenState extends State<AddItemScreen> {
     titleController.dispose();
     descriptionController.dispose();
     locationController.dispose();
-    finderContactController.dispose();
     super.dispose();
   }
 
@@ -53,10 +50,12 @@ class _AddItemScreenState extends State<AddItemScreen> {
               controller: locationController,
               decoration: InputDecoration(labelText: 'Location'),
             ),
-            TextField(
-              controller: finderContactController,
-              decoration: InputDecoration(labelText: 'Your contact'),
+            SizedBox(height: 16),
+            Text(
+              'Your contact will remain private. Owners can contact you through chat after claiming.',
+              style: TextStyle(fontSize: 12, color: Colors.grey),
             ),
+            SizedBox(height: 16),
             ElevatedButton(
               onPressed: () async {
                 try {
@@ -64,7 +63,6 @@ class _AddItemScreenState extends State<AddItemScreen> {
                     title: titleController.text,
                     description: descriptionController.text,
                     location: locationController.text,
-                    finderContact: finderContactController.text,
                   );
                   if (!mounted) return;
                   Navigator.pop(context);

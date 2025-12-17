@@ -4,22 +4,18 @@ class Item {
   final String title;
   final String description;
   final String location;
-  final String finderContact;
+  final String finderId;
   final DateTime createdAt;
   final bool claimed;
-  final String? ownerContact;
-  final String? ownerMessage;
 
   Item({
     required this.id,
     required this.title,
     required this.description,
     required this.location,
-    required this.finderContact,
+    required this.finderId,
     required this.createdAt,
     required this.claimed,
-    this.ownerContact,
-    this.ownerMessage,
   });
 
   factory Item.fromJson(Map<String, dynamic> json) {
@@ -28,11 +24,9 @@ class Item {
       title: json['title'] as String,
       description: json['description'] as String,
       location: json['location'] as String,
-      finderContact: json['finder_contact'] as String,
+      finderId: json['finder_id'] as String? ?? '',
       createdAt: DateTime.parse(json['created_at'] as String),
       claimed: json['claimed'] as bool,
-      ownerContact: json['owner_contact'] as String?,
-      ownerMessage: json['owner_message'] as String?,
     );
   }
 
@@ -41,7 +35,6 @@ class Item {
       'title': title,
       'description': description,
       'location': location,
-      'finder_contact': finderContact,
     };
   }
 }

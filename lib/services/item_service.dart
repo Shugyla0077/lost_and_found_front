@@ -6,18 +6,14 @@ import '../models/item.dart';
 
 abstract class ItemService {
   Future<List<Item>> fetchItems();
+  Future<List<Item>> fetchMyItems();
   Future<Item> fetchItem(String id);
   Future<Item> addItem({
     required String title,
     required String description,
     required String location,
-    required String finderContact,
   });
-  Future<void> claimItem({
-    required String id,
-    required String ownerContact,
-    required String message,
-  });
+  Future<Map<String, dynamic>> claimItem({required String id});
   Future<String> createRewardPayment({required int amountCents});
 }
 
@@ -43,6 +39,14 @@ class ItemServiceImpl implements ItemService {
   }
 
   @override
+  Future<List<Item>> fetchMyItems() async {
+    await _attachToken();
+    final res = await _dio.get('/items/my/');
+    final data = res.data as List<dynamic>;
+    return data.map((e) => Item.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  @override
   Future<Item> fetchItem(String id) async {
     final res = await _dio.get('/items/$id/');
     return Item.fromJson(res.data as Map<String, dynamic>);
@@ -53,31 +57,23 @@ class ItemServiceImpl implements ItemService {
     required String title,
     required String description,
     required String location,
-    required String finderContact,
   }) async {
     await _attachToken();
     final res = await _dio.post('/items/create/', data: {
       'title': title,
       'description': description,
       'location': location,
-      'finder_contact': finderContact,
     });
     return Item.fromJson(res.data as Map<String, dynamic>);
   }
 
   @override
-  Future<void> claimItem({
-    required String id,
-    required String ownerContact,
-    required String message,
-  }) async {
+  Future<Map<String, dynamic>> claimItem({required String id}) async {
     await _attachToken();
     debugPrint('CLAIM headers: ${_dio.options.headers}');
     try {
-      await _dio.post('/items/$id/claim/', data: {
-        'owner_contact': ownerContact,
-        'message': message,
-      });
+      final res = await _dio.post('/items/$id/claim/');
+      return res.data as Map<String, dynamic>;
     } on DioException catch (e) {
       debugPrint('CLAIM error response: ${e.response?.data}');
       rethrow;

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import '../models/item.dart';
 import '../services/item_service.dart';
+import 'chat_messages_screen.dart';
 
 class ItemDetailScreen extends StatefulWidget {
   final Item item;
@@ -17,8 +18,6 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
   final ItemService itemService = GetIt.I<ItemService>();
   late Item _item;
   bool _loading = false;
-  final TextEditingController ownerContactController = TextEditingController();
-  final TextEditingController ownerMessageController = TextEditingController();
 
   @override
   void initState() {
@@ -41,15 +40,20 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
   Future<void> _claimItem() async {
     setState(() => _loading = true);
     try {
-      await itemService.claimItem(
-        id: _item.id,
-        ownerContact: ownerContactController.text,
-        message: ownerMessageController.text,
-      );
+      await itemService.claimItem(id: _item.id);
       await _loadDetails();
       if (!mounted) return;
+
+      // Navigate to chat after claiming
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ChatMessagesScreen(itemId: _item.id, itemTitle: _item.title),
+        ),
+      );
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Claim sent')),
+        const SnackBar(content: Text('Item claimed! You can now chat with the finder.')),
       );
     } catch (e) {
       if (!mounted) return;
@@ -61,13 +65,6 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
         setState(() => _loading = false);
       }
     }
-  }
-
-  @override
-  void dispose() {
-    ownerContactController.dispose();
-    ownerMessageController.dispose();
-    super.dispose();
   }
 
   @override
@@ -84,25 +81,16 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
             Text(_item.description),
             const SizedBox(height: 8),
             Text('Location: ${_item.location}'),
-            Text('Finder contact: ${_item.finderContact}'),
             const SizedBox(height: 12),
-            if (_item.ownerContact != null)
-              Text('Owner contact: ${_item.ownerContact}'),
-            if (_item.ownerMessage != null)
-              Text('Owner message: ${_item.ownerMessage}'),
+            Text(
+              'Contacts are kept private. Use chat to communicate.',
+              style: TextStyle(fontSize: 12, color: Colors.grey, fontStyle: FontStyle.italic),
+            ),
             const SizedBox(height: 20),
             if (!_item.claimed) ...[
-              TextField(
-                controller: ownerContactController,
-                decoration: const InputDecoration(
-                  labelText: 'Your contact',
-                ),
-              ),
-              TextField(
-                controller: ownerMessageController,
-                decoration: const InputDecoration(
-                  labelText: 'Message',
-                ),
+              Text(
+                'Is this your item? Claim it to start chatting with the finder.',
+                style: TextStyle(fontSize: 14),
               ),
               const SizedBox(height: 12),
               ElevatedButton(
@@ -115,11 +103,25 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                       )
                     : const Text('Claim this item'),
               ),
-            ] else
+            ] else ...[
               const Text(
                 'Already claimed',
-                style: TextStyle(color: Colors.green),
+                style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
               ),
+              const SizedBox(height: 12),
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChatMessagesScreen(itemId: _item.id, itemTitle: _item.title),
+                    ),
+                  );
+                },
+                icon: Icon(Icons.chat),
+                label: Text('Open Chat'),
+              ),
+            ],
           ],
         ),
       ),
