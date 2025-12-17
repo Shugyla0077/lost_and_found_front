@@ -1,8 +1,10 @@
 // lib/screens/item_detail_screen.dart
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 import '../models/item.dart';
 import '../services/item_service.dart';
+import '../l10n/l10n.dart';
 import 'chat_messages_screen.dart';
 
 class ItemDetailScreen extends StatefulWidget {
@@ -18,6 +20,10 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
   final ItemService itemService = GetIt.I<ItemService>();
   late Item _item;
   bool _loading = false;
+
+  String? get _currentUserId => FirebaseAuth.instance.currentUser?.uid;
+
+  bool get _isOwner => _currentUserId != null && _item.finderId == _currentUserId;
 
   @override
   void initState() {
@@ -38,6 +44,13 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
   }
 
   Future<void> _claimItem() async {
+    if (_isOwner) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.cannotClaimOwnItem)),
+      );
+      return;
+    }
+
     setState(() => _loading = true);
     try {
       await itemService.claimItem(id: _item.id);
@@ -53,12 +66,12 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Item claimed! You can now chat with the finder.')),
+        SnackBar(content: Text(context.l10n.itemClaimed)),
       );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to claim: $e')),
+        SnackBar(content: Text(context.l10n.failedToClaim(e.toString()))),
       );
     } finally {
       if (mounted) {
@@ -78,20 +91,33 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
           children: [
             Text(_item.title, style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 10),
+            if (_isOwner) ...[
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.blue.withOpacity(0.25)),
+                ),
+                child: Text(
+                  context.l10n.ownItemBanner,
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
             Text(_item.description),
             const SizedBox(height: 8),
-            Text('Location: ${_item.location}'),
+            Text('${context.l10n.location}: ${_item.location}'),
             const SizedBox(height: 12),
             Text(
-              'Contacts are kept private. Use chat to communicate.',
+              context.l10n.contactsPrivate,
               style: TextStyle(fontSize: 12, color: Colors.grey, fontStyle: FontStyle.italic),
             ),
             const SizedBox(height: 20),
-            if (!_item.claimed) ...[
-              Text(
-                'Is this your item? Claim it to start chatting with the finder.',
-                style: TextStyle(fontSize: 14),
-              ),
+            if (!_item.claimed && !_isOwner) ...[
+              Text(context.l10n.claimYourItemHint, style: TextStyle(fontSize: 14)),
               const SizedBox(height: 12),
               ElevatedButton(
                 onPressed: _loading ? null : _claimItem,
@@ -101,13 +127,12 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                         height: 18,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Text('Claim this item'),
+                    : Text(context.l10n.claimThisItem),
               ),
+            ] else if (!_item.claimed && _isOwner) ...[
+              Text(context.l10n.cannotClaimOwnItem, style: TextStyle(color: Colors.grey)),
             ] else ...[
-              const Text(
-                'Already claimed',
-                style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
-              ),
+              Text(context.l10n.alreadyClaimed, style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
               ElevatedButton.icon(
                 onPressed: () {
@@ -119,7 +144,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                   );
                 },
                 icon: Icon(Icons.chat),
-                label: Text('Open Chat'),
+                label: Text(context.l10n.openChat),
               ),
             ],
           ],

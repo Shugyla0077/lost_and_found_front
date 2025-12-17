@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import '../models/chat.dart';
 import '../services/chat_service.dart';
+import '../l10n/l10n.dart';
 import 'chat_messages_screen.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -34,7 +35,7 @@ class _ChatScreenState extends State<ChatScreen> {
       if (mounted) {
         setState(() => loading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load chats: $e')),
+          SnackBar(content: Text(context.l10n.failedToLoadChats(e.toString()))),
         );
       }
     }
@@ -43,7 +44,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Chats')),
+      appBar: AppBar(title: Text(context.l10n.chats)),
       body: loading
           ? Center(child: CircularProgressIndicator())
           : chats.isEmpty
@@ -54,12 +55,12 @@ class _ChatScreenState extends State<ChatScreen> {
                       Icon(Icons.chat_bubble_outline, size: 64, color: Colors.grey),
                       SizedBox(height: 16),
                       Text(
-                        'No chats yet',
+                        context.l10n.noChatsYet,
                         style: TextStyle(fontSize: 18, color: Colors.grey),
                       ),
                       SizedBox(height: 8),
                       Text(
-                        'Claim an item to start chatting',
+                        context.l10n.claimItemToStartChatting,
                         style: TextStyle(fontSize: 14, color: Colors.grey),
                       ),
                     ],
@@ -80,7 +81,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         subtitle: Text(
-                          chat.lastMessage ?? 'No messages yet',
+                          chat.lastMessage ?? context.l10n.noMessagesYetShort,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(color: Colors.grey[600]),
@@ -114,13 +115,13 @@ class _ChatScreenState extends State<ChatScreen> {
     final diff = now.difference(dateTime);
 
     if (diff.inDays > 0) {
-      return '${diff.inDays}d ago';
+      return context.l10n.timeDaysAgo(diff.inDays);
     } else if (diff.inHours > 0) {
-      return '${diff.inHours}h ago';
+      return context.l10n.timeHoursAgo(diff.inHours);
     } else if (diff.inMinutes > 0) {
-      return '${diff.inMinutes}m ago';
+      return context.l10n.timeMinutesAgo(diff.inMinutes);
     } else {
-      return 'Just now';
+      return context.l10n.timeJustNow;
     }
   }
 }

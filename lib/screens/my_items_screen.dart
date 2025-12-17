@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import '../models/item.dart';
 import '../services/item_service.dart';
+import '../l10n/l10n.dart';
 import 'item_detail_screen.dart';
 
 class MyItemsScreen extends StatefulWidget {
@@ -37,7 +38,7 @@ class _MyItemsScreenState extends State<MyItemsScreen> {
       if (!mounted) return;
       setState(() => loading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load items: $e')),
+        SnackBar(content: Text(context.l10n.failedToLoadItems(e.toString()))),
       );
     }
   }
@@ -55,12 +56,12 @@ class _MyItemsScreenState extends State<MyItemsScreen> {
                       Icon(Icons.inventory_2_outlined, size: 64, color: Colors.grey),
                       SizedBox(height: 16),
                       Text(
-                        'No items yet',
+                        context.l10n.noMyItemsYetTitle,
                         style: TextStyle(fontSize: 18, color: Colors.grey),
                       ),
                       SizedBox(height: 8),
                       Text(
-                        'Add your first found item',
+                        context.l10n.noMyItemsYetSubtitle,
                         style: TextStyle(fontSize: 14, color: Colors.grey),
                       ),
                     ],
@@ -104,13 +105,13 @@ class _MyItemsScreenState extends State<MyItemsScreen> {
                                     color: item.claimed ? Colors.green : Colors.orange,
                                   ),
                                   SizedBox(width: 4),
-                                  Text(
-                                    item.claimed ? 'Claimed' : 'Waiting for owner',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: item.claimed ? Colors.green : Colors.orange,
+                                    Text(
+                                      item.claimed ? context.l10n.claimed : context.l10n.waitingForOwner,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: item.claimed ? Colors.green : Colors.orange,
+                                      ),
                                     ),
-                                  ),
                                 ],
                               ),
                             ],

@@ -1,6 +1,7 @@
 // lib/screens/add_item_screen.dart
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import '../l10n/l10n.dart';
 import '../services/item_service.dart';
 
 class AddItemScreen extends StatefulWidget {
@@ -33,26 +34,26 @@ class _AddItemScreenState extends State<AddItemScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Add Item')),
+      appBar: AppBar(title: Text(context.l10n.addItem)),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             TextField(
               controller: titleController,
-              decoration: InputDecoration(labelText: 'Title'),
+              decoration: InputDecoration(labelText: context.l10n.title),
             ),
             TextField(
               controller: descriptionController,
-              decoration: InputDecoration(labelText: 'Description'),
+              decoration: InputDecoration(labelText: context.l10n.description),
             ),
             TextField(
               controller: locationController,
-              decoration: InputDecoration(labelText: 'Location'),
+              decoration: InputDecoration(labelText: context.l10n.location),
             ),
             SizedBox(height: 16),
             Text(
-              'Your contact will remain private. Owners can contact you through chat after claiming.',
+              context.l10n.contactPrivateAddItemHint,
               style: TextStyle(fontSize: 12, color: Colors.grey),
             ),
             SizedBox(height: 16),
@@ -68,10 +69,10 @@ class _AddItemScreenState extends State<AddItemScreen> {
                   Navigator.pop(context);
                 } catch (e) {
                   ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text('Failed to add item: $e')));
+                      .showSnackBar(SnackBar(content: Text(context.l10n.addItemFailed(e.toString()))));
                 }
               },
-              child: Text('Add Item'),
+              child: Text(context.l10n.addItem),
             ),
           ],
         ),

@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/message.dart';
 import '../services/chat_service.dart';
+import '../l10n/l10n.dart';
 
 class ChatMessagesScreen extends StatefulWidget {
   final String itemId;
@@ -40,7 +41,7 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen> {
       setState(() => loading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load messages: $e')),
+          SnackBar(content: Text(context.l10n.failedToLoadMessages(e.toString()))),
         );
       }
     }
@@ -60,7 +61,7 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to send message: $e')),
+          SnackBar(content: Text(context.l10n.failedToSendMessage(e.toString()))),
         );
       }
     }
@@ -86,7 +87,7 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen> {
                 : messages.isEmpty
                     ? Center(
                         child: Text(
-                          'No messages yet. Start the conversation!',
+                          context.l10n.noMessagesYet,
                           style: TextStyle(color: Colors.grey),
                         ),
                       )
@@ -145,7 +146,7 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen> {
                   child: TextField(
                     controller: messageController,
                     decoration: InputDecoration(
-                      hintText: 'Type a message...',
+                      hintText: context.l10n.typeMessageHint,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24),
                       ),
@@ -174,11 +175,11 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen> {
     if (diff.inDays > 0) {
       return '${dateTime.day}/${dateTime.month} ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
     } else if (diff.inHours > 0) {
-      return '${diff.inHours}h ago';
+      return context.l10n.timeHoursAgo(diff.inHours);
     } else if (diff.inMinutes > 0) {
-      return '${diff.inMinutes}m ago';
+      return context.l10n.timeMinutesAgo(diff.inMinutes);
     } else {
-      return 'Just now';
+      return context.l10n.timeJustNow;
     }
   }
 }

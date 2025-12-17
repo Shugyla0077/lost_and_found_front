@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import '../models/item.dart';
 import '../services/item_service.dart';
+import '../l10n/l10n.dart';
 import 'chat_screen.dart';
 import 'my_items_screen.dart';
 import 'profile_screen.dart';
@@ -44,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Lost & Found'),
+        title: Text(context.l10n.appTitle),
         actions: [
           IconButton(
             icon: Icon(Icons.add),
@@ -65,22 +66,22 @@ class _HomeScreenState extends State<HomeScreen> {
             _currentIndex = index;
           });
         },
-        items: const [
+        items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Home',
+            label: context.l10n.home,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.chat),
-            label: 'Chats',
+            label: context.l10n.chats,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.list),
-            label: 'My Items',
+            label: context.l10n.myItems,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
-            label: 'Profile',
+            label: context.l10n.profile,
           ),
         ],
       ),
@@ -112,7 +113,7 @@ class HomePage extends StatelessWidget {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(16),
-                  child: Text('Failed to load items: ${snapshot.error}'),
+                  child: Text(context.l10n.failedToLoadItems(snapshot.error.toString())),
                 ),
               ],
             );
@@ -120,10 +121,10 @@ class HomePage extends StatelessWidget {
           final items = snapshot.data ?? [];
           if (items.isEmpty) {
             return ListView(
-              children: const [
+              children: [
                 Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Text('No items yet. Add the first one!'),
+                  padding: const EdgeInsets.all(16),
+                  child: Text(context.l10n.noItemsYet),
                 ),
               ],
             );
@@ -165,7 +166,7 @@ class HomePage extends StatelessWidget {
                           ),
                           SizedBox(width: 4),
                           Text(
-                            item.claimed ? 'Claimed' : 'Available',
+                            item.claimed ? context.l10n.claimed : context.l10n.available,
                             style: TextStyle(
                               fontSize: 12,
                               color: item.claimed ? Colors.green : Colors.orange,
