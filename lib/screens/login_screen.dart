@@ -18,9 +18,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _resetPassword() async {
     final initialEmail = emailController.text.trim();
-    final controller = TextEditingController(text: initialEmail);
+    var enteredEmail = initialEmail;
 
-    final email = await showDialog<String>(
+    final submittedEmail = await showDialog<String>(
       context: context,
       builder: (context) {
         return AlertDialog(
@@ -33,10 +33,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 12),
-              TextField(
-                controller: controller,
+              TextFormField(
+                initialValue: initialEmail,
                 decoration: InputDecoration(labelText: context.l10n.email),
                 keyboardType: TextInputType.emailAddress,
+                onChanged: (value) => enteredEmail = value.trim(),
               ),
             ],
           ),
@@ -46,7 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Text(context.l10n.cancel),
             ),
             ElevatedButton(
-              onPressed: () => Navigator.pop(context, controller.text.trim()),
+              onPressed: () => Navigator.pop(context, enteredEmail),
               child: Text(context.l10n.sendResetLink),
             ),
           ],
@@ -54,10 +55,8 @@ class _LoginScreenState extends State<LoginScreen> {
       },
     );
 
-    controller.dispose();
-
-    if (!mounted || email == null) return;
-    if (email.isEmpty) {
+    if (!mounted || submittedEmail == null) return;
+    if (submittedEmail.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(context.l10n.emailRequired)),
       );
@@ -65,7 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     try {
-      await authService.sendPasswordResetEmail(email);
+      await authService.sendPasswordResetEmail(submittedEmail);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(context.l10n.passwordResetEmailSent)),
@@ -96,19 +95,21 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(context.l10n.login)),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(16.0),
           children: [
             TextField(
               controller: emailController,
               decoration: InputDecoration(labelText: context.l10n.email),
             ),
+            const SizedBox(height: 12),
             TextField(
               controller: passwordController,
               decoration: InputDecoration(labelText: context.l10n.password),
               obscureText: true,
             ),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () async {
                 try {
