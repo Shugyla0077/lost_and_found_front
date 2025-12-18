@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:dio/dio.dart';
 import '../models/message.dart';
 import '../services/chat_service.dart';
 import '../l10n/l10n.dart';
@@ -49,13 +50,27 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen> {
         messages = msgs;
         loading = false;
       });
-    } catch (e) {
-      setState(() => loading = false);
-      if (mounted) {
+    } on DioException catch (e) {
+      if (mounted) setState(() => loading = false);
+      final code = e.response?.statusCode;
+      if (code == 403) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.failedToLoadMessages(e.toString()))),
+          SnackBar(content: Text(context.l10n.chatAccessDenied)),
         );
+        Navigator.pop(context);
+        return;
       }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.failedToLoadMessages(e.toString()))),
+      );
+    } catch (e) {
+      if (mounted) setState(() => loading = false);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.failedToLoadMessages(e.toString()))),
+      );
     }
   }
 
@@ -87,6 +102,7 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.itemTitle),
@@ -100,7 +116,7 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen> {
                     ? Center(
                         child: Text(
                           context.l10n.noMessagesYet,
-                          style: TextStyle(color: Colors.grey),
+                          style: TextStyle(color: scheme.onSurfaceVariant),
                         ),
                       )
                     : ListView.builder(
@@ -116,7 +132,7 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen> {
                               margin: EdgeInsets.only(bottom: 8),
                               padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                               decoration: BoxDecoration(
-                                color: isMe ? Colors.blue[100] : Colors.grey[300],
+                                color: isMe ? scheme.primaryContainer : scheme.surfaceContainerHighest,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               constraints: BoxConstraints(
@@ -132,7 +148,7 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen> {
                                   SizedBox(height: 4),
                                   Text(
                                     _formatTime(msg.createdAt),
-                                    style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                                    style: TextStyle(fontSize: 10, color: scheme.onSurfaceVariant),
                                   ),
                                 ],
                               ),
@@ -141,38 +157,29 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen> {
                         },
                       ),
           ),
-          Container(
-            padding: EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 4,
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: messageController,
-                    decoration: InputDecoration(
-                      hintText: context.l10n.typeMessageHint,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: messageController,
+                      decoration: InputDecoration(
+                        hintText: context.l10n.typeMessageHint,
+                        prefixIcon: const Icon(Icons.message_outlined),
                       ),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      onSubmitted: (_) => _sendMessage(),
                     ),
-                    onSubmitted: (_) => _sendMessage(),
                   ),
-                ),
-                SizedBox(width: 8),
-                IconButton(
-                  icon: Icon(Icons.send, color: Colors.blue),
-                  onPressed: _sendMessage,
-                ),
-              ],
+                  const SizedBox(width: 8),
+                  IconButton.filled(
+                    onPressed: _sendMessage,
+                    icon: const Icon(Icons.send),
+                  ),
+                ],
+              ),
             ),
           ),
         ],

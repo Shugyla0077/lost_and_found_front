@@ -9,6 +9,11 @@ import '../services/profile_service.dart';
 import '../utils/locale_controller.dart';
 
 class ProfileScreen extends StatefulWidget {
+  const ProfileScreen({super.key, this.embedded = false, this.active = true});
+
+  final bool embedded;
+  final bool active;
+
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
@@ -28,11 +33,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool editing = false;
   String? errorText;
   String _language = 'en';
+  bool _hasLoadedOnce = false;
 
   @override
   void initState() {
     super.initState();
-    _load();
+    if (widget.active) {
+      _hasLoadedOnce = true;
+      _load();
+    } else {
+      loading = false;
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant ProfileScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!oldWidget.active && widget.active && !_hasLoadedOnce) {
+      _hasLoadedOnce = true;
+      setState(() => loading = true);
+      _load();
+    }
   }
 
   Future<void> _load() async {
@@ -158,12 +179,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final firebaseUser = FirebaseAuth.instance.currentUser;
+    final scheme = Theme.of(context).colorScheme;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(context.l10n.profile),
-      ),
-      body: loading
+    final body = loading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
               onRefresh: _load,
@@ -174,13 +192,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.08),
+                        color: scheme.errorContainer,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.red.withOpacity(0.25)),
+                        border: Border.all(color: scheme.errorContainer),
                       ),
                       child: Text(
                         errorText!,
-                        style: const TextStyle(color: Colors.red),
+                        style: TextStyle(color: scheme.onErrorContainer),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -204,11 +222,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   const SizedBox(height: 12),
                   Card(
-                    color: Colors.green[50],
                     child: ListTile(
-                      leading: const CircleAvatar(
-                        backgroundColor: Colors.green,
-                        child: Icon(Icons.check, color: Colors.white),
+                      leading: CircleAvatar(
+                        backgroundColor: scheme.tertiaryContainer,
+                        foregroundColor: scheme.onTertiaryContainer,
+                        child: const Icon(Icons.check),
                       ),
                       title: Text(
                         context.l10n.claimedItems,
@@ -223,11 +241,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   const SizedBox(height: 12),
                   Card(
-                    color: Colors.blue[50],
                     child: ListTile(
-                      leading: const CircleAvatar(
-                        backgroundColor: Colors.blue,
-                        child: Icon(Icons.payment, color: Colors.white),
+                      leading: CircleAvatar(
+                        backgroundColor: scheme.primaryContainer,
+                        foregroundColor: scheme.onPrimaryContainer,
+                        child: const Icon(Icons.payment),
                       ),
                       title: Text(
                         context.l10n.rewardPayment,
@@ -257,7 +275,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             enabled: editing && !saving,
                             decoration: InputDecoration(
                               labelText: context.l10n.displayName,
-                              border: const OutlineInputBorder(),
+                              prefixIcon: const Icon(Icons.badge_outlined),
                             ),
                             textInputAction: TextInputAction.next,
                           ),
@@ -267,7 +285,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             enabled: editing && !saving,
                             decoration: InputDecoration(
                               labelText: context.l10n.city,
-                              border: const OutlineInputBorder(),
+                              prefixIcon: const Icon(Icons.location_city_outlined),
                             ),
                             textInputAction: TextInputAction.next,
                           ),
@@ -277,7 +295,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             enabled: editing && !saving,
                             decoration: InputDecoration(
                               labelText: context.l10n.about,
-                              border: const OutlineInputBorder(),
+                              prefixIcon: const Icon(Icons.info_outline),
                             ),
                             maxLines: 4,
                           ),
@@ -287,7 +305,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             disabledHint: Text(_language),
                             decoration: InputDecoration(
                               labelText: context.l10n.language,
-                              border: const OutlineInputBorder(),
+                              prefixIcon: const Icon(Icons.language_outlined),
                             ),
                             items: [
                               DropdownMenuItem(value: 'en', child: Text(context.l10n.english)),
@@ -358,7 +376,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ],
               ),
-            ),
-    );
+            );
+
+    if (widget.embedded) return body;
+    return Scaffold(appBar: AppBar(title: Text(context.l10n.profile)), body: body);
   }
 }

@@ -85,45 +85,55 @@ class _RewardPaymentScreenState extends State<RewardPaymentScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text(
-            context.l10n.chooseAmount,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: presets.map((cents) {
-              final isSelected = selected == cents;
-              return ChoiceChip(
-                label: Text(context.l10n.amountUsd(cents ~/ 100)),
-                selected: isSelected,
-                onSelected: loading
-                    ? null
-                    : (v) {
-                        setState(() {
-                          selectedCents = v ? cents : null;
-                          if (v) amountController.clear();
-                        });
-                      },
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: amountController,
-            keyboardType: TextInputType.number,
-            enabled: !loading,
-            decoration: InputDecoration(
-              labelText: context.l10n.customAmountUsd,
-              helperText: context.l10n.amountRange(_maxCents ~/ 100, _minCents ~/ 100),
-              border: const OutlineInputBorder(),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.l10n.chooseAmount,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: presets.map((cents) {
+                      final isSelected = selected == cents;
+                      return ChoiceChip(
+                        label: Text(context.l10n.amountUsd(cents ~/ 100)),
+                        selected: isSelected,
+                        onSelected: loading
+                            ? null
+                            : (v) {
+                                setState(() {
+                                  selectedCents = v ? cents : null;
+                                  if (v) amountController.clear();
+                                });
+                              },
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: amountController,
+                    keyboardType: TextInputType.number,
+                    enabled: !loading,
+                    decoration: InputDecoration(
+                      labelText: context.l10n.customAmountUsd,
+                      helperText: context.l10n.amountRange(_maxCents ~/ 100, _minCents ~/ 100),
+                      prefixIcon: const Icon(Icons.attach_money),
+                    ),
+                    onChanged: (_) {
+                      if (selectedCents != null) {
+                        setState(() => selectedCents = null);
+                      }
+                    },
+                  ),
+                ],
+              ),
             ),
-            onChanged: (_) {
-              if (selectedCents != null) {
-                setState(() => selectedCents = null);
-              }
-            },
           ),
           const SizedBox(height: 16),
           ElevatedButton.icon(

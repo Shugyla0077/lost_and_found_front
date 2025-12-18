@@ -32,6 +32,7 @@ class _ClaimedItemsScreenState extends State<ClaimedItemsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(title: Text(context.l10n.claimedItems)),
       body: RefreshIndicator(
@@ -66,16 +67,17 @@ class _ClaimedItemsScreenState extends State<ClaimedItemsScreen> {
             }
 
             return ListView.builder(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
               itemCount: items.length,
               itemBuilder: (context, index) {
                 final item = items[index];
                 return Card(
-                  margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  margin: const EdgeInsets.only(bottom: 12),
                   child: ListTile(
-                    leading: const CircleAvatar(
-                      backgroundColor: Colors.green,
-                      child: Icon(Icons.check, color: Colors.white),
+                    leading: CircleAvatar(
+                      backgroundColor: scheme.tertiaryContainer,
+                      foregroundColor: scheme.onTertiaryContainer,
+                      child: const Icon(Icons.check),
                     ),
                     title: Text(item.title, style: const TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text(item.location),
@@ -96,4 +98,3 @@ class _ClaimedItemsScreenState extends State<ClaimedItemsScreen> {
     );
   }
 }
-

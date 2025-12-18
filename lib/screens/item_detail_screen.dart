@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 import '../models/item.dart';
+import '../models/chat.dart';
+import '../services/chat_service.dart';
 import '../services/item_service.dart';
 import '../l10n/l10n.dart';
 import 'chat_messages_screen.dart';
@@ -18,8 +20,10 @@ class ItemDetailScreen extends StatefulWidget {
 
 class _ItemDetailScreenState extends State<ItemDetailScreen> {
   final ItemService itemService = GetIt.I<ItemService>();
+  final ChatService chatService = GetIt.I<ChatService>();
   late Item _item;
   bool _loading = false;
+  bool? _canOpenChat; // null = checking
 
   String? get _currentUserId => FirebaseAuth.instance.currentUser?.uid;
   bool get _isAuthenticated => _currentUserId != null;
@@ -31,6 +35,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
     super.initState();
     _item = widget.item;
     _loadDetails();
+    _checkChatAccess();
   }
 
   Future<void> _loadDetails() async {
@@ -39,8 +44,26 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
       setState(() {
         _item = detailed;
       });
+      await _checkChatAccess();
     } catch (_) {
       // keep minimal info on failure
+    }
+  }
+
+  Future<void> _checkChatAccess() async {
+    if (!_isAuthenticated || !_item.claimed) {
+      if (mounted) setState(() => _canOpenChat = false);
+      return;
+    }
+
+    if (mounted) setState(() => _canOpenChat = null);
+
+    try {
+      final List<Chat> chats = await chatService.fetchChats();
+      final can = chats.any((c) => c.itemId == _item.id);
+      if (mounted) setState(() => _canOpenChat = can);
+    } catch (_) {
+      if (mounted) setState(() => _canOpenChat = false);
     }
   }
 
@@ -93,6 +116,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(title: Text(_item.title)),
       body: SingleChildScrollView(
@@ -100,33 +124,50 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(_item.title, style: Theme.of(context).textTheme.headlineSmall),
+            Text(_item.title, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: 10),
             if (_isOwner) ...[
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.08),
+                  color: scheme.primaryContainer,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.blue.withOpacity(0.25)),
+                  border: Border.all(color: scheme.outlineVariant),
                 ),
                 child: Text(
                   context.l10n.ownItemBanner,
-                  style: TextStyle(fontWeight: FontWeight.w600),
+                  style: TextStyle(fontWeight: FontWeight.w600, color: scheme.onPrimaryContainer),
                 ),
               ),
               const SizedBox(height: 12),
             ],
-            Text(_item.description),
-            const SizedBox(height: 8),
-            Text('${context.l10n.location}: ${_item.location}'),
-            const SizedBox(height: 12),
-            Text(
-              context.l10n.contactsPrivate,
-              style: TextStyle(fontSize: 12, color: Colors.grey, fontStyle: FontStyle.italic),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(_item.description),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Icon(Icons.location_on, size: 18, color: scheme.onSurfaceVariant),
+                        const SizedBox(width: 6),
+                        Expanded(child: Text(_item.location)),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      context.l10n.contactsPrivate,
+                      style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             if (!_item.claimed && !_isOwner) ...[
               Text(context.l10n.claimYourItemHint, style: TextStyle(fontSize: 14)),
               const SizedBox(height: 12),
@@ -141,13 +182,13 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                     : Text(context.l10n.claimThisItem),
               ),
             ] else if (!_item.claimed && _isOwner) ...[
-              Text(context.l10n.cannotClaimOwnItem, style: TextStyle(color: Colors.grey)),
+              Text(context.l10n.cannotClaimOwnItem, style: TextStyle(color: scheme.onSurfaceVariant)),
             ] else ...[
-              Text(context.l10n.alreadyClaimed, style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+              Text(context.l10n.alreadyClaimed, style: TextStyle(color: scheme.tertiary, fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
-              ElevatedButton.icon(
-                onPressed: () async {
-                  if (!_isAuthenticated) {
+              if (!_isAuthenticated) ...[
+                ElevatedButton.icon(
+                  onPressed: () async {
                     await Navigator.pushNamed(
                       context,
                       '/login',
@@ -155,18 +196,56 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                     );
                     if (!mounted) return;
                     setState(() {});
-                    return;
-                  }
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ChatMessagesScreen(itemId: _item.id, itemTitle: _item.title),
+                    await _checkChatAccess();
+                  },
+                  icon: const Icon(Icons.login),
+                  label: Text(context.l10n.login),
+                ),
+              ] else if (_canOpenChat == null) ...[
+                const Center(child: CircularProgressIndicator()),
+              ] else if (_canOpenChat == true) ...[
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ChatMessagesScreen(itemId: _item.id, itemTitle: _item.title),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.chat),
+                  label: Text(context.l10n.openChat),
+                ),
+              ] else ...[
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.lock_outline, color: scheme.onSurfaceVariant),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                context.l10n.chatAccessDenied,
+                                style: const TextStyle(fontWeight: FontWeight.w600),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                context.l10n.chatAccessDeniedHint,
+                                style: TextStyle(color: scheme.onSurfaceVariant),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                  );
-                },
-                icon: Icon(Icons.chat),
-                label: Text(context.l10n.openChat),
-              ),
+                  ),
+                ),
+              ],
             ],
           ],
         ),

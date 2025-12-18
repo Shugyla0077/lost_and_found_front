@@ -376,6 +376,18 @@ abstract class AppLocalizations {
   /// **'Failed to send message: {error}'**
   String failedToSendMessage(Object error);
 
+  /// No description provided for @chatAccessDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t have access to this chat.'**
+  String get chatAccessDenied;
+
+  /// No description provided for @chatAccessDeniedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the finder and the claimant can chat about this item.'**
+  String get chatAccessDeniedHint;
+
   /// No description provided for @noMessagesYet.
   ///
   /// In en, this message translates to:

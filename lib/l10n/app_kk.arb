@@ -46,6 +46,8 @@
   "claimItemToStartChatting": "Чат бастау үшін затқа өтініш жіберіңіз",
   "failedToLoadMessages": "Хабарламаларды жүктеу мүмкін болмады: {error}",
   "failedToSendMessage": "Хабарлама жіберу мүмкін болмады: {error}",
+  "chatAccessDenied": "Бұл чатқа қолжетімділік жоқ.",
+  "chatAccessDeniedHint": "Тек табушы мен өтініш берген адам ғана осы зат бойынша жаза алады.",
   "noMessagesYet": "Хабарламалар жоқ. Диалогты бастаңыз!",
   "noMessagesYetShort": "Хабарлама жоқ",
   "typeMessageHint": "Хабарлама жазыңыз...",

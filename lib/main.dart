@@ -19,6 +19,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
 import 'utils/locale_controller.dart';
 import 'l10n/l10n.dart';
+import 'theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -103,7 +104,7 @@ class _MyAppState extends State<MyApp> {
       builder: (context, _) => MaterialApp(
         scaffoldMessengerKey: _messengerKey,
         onGenerateTitle: (context) => context.l10n.appTitle,
-        theme: ThemeData(primarySwatch: Colors.blue),
+        theme: AppTheme.light(),
         locale: widget.localeController.locale,
         supportedLocales: const [
           Locale('en'),

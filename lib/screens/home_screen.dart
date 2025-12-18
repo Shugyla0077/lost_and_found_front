@@ -82,6 +82,19 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  String _titleForIndex(BuildContext context, int index) {
+    switch (index) {
+      case 1:
+        return context.l10n.chats;
+      case 2:
+        return context.l10n.myItems;
+      case 3:
+        return context.l10n.profile;
+      default:
+        return context.l10n.appTitle;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
@@ -94,37 +107,38 @@ class _HomeScreenState extends State<HomeScreen> {
         onApplyFilters: _applyFilters,
         onResetFilters: _resetFilters,
       ),
-      ChatScreen(),
-      MyItemsScreen(),
-      ProfileScreen(),
+      ChatScreen(embedded: true, active: _currentIndex == 1),
+      MyItemsScreen(embedded: true, active: _currentIndex == 2),
+      ProfileScreen(embedded: true, active: _currentIndex == 3),
     ];
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(context.l10n.appTitle),
+        title: Text(_titleForIndex(context, _currentIndex)),
         actions: [
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () async {
-              if (!_isAuthenticated) {
-                final res = await Navigator.pushNamed(
-                  context,
-                  '/login',
-                  arguments: {'popOnSuccess': true, 'next': '/addItem'},
-                );
-                if (!mounted) return;
-                if (res is Map && res['next'] == '/addItem') {
-                  await Navigator.pushNamed(context, '/addItem');
+          if (_currentIndex == 0)
+            IconButton(
+              icon: const Icon(Icons.add),
+              onPressed: () async {
+                if (!_isAuthenticated) {
+                  final res = await Navigator.pushNamed(
+                    context,
+                    '/login',
+                    arguments: {'popOnSuccess': true, 'next': '/addItem'},
+                  );
                   if (!mounted) return;
-                  await _refreshItems();
-                } else {
-                  setState(() {});
+                  if (res is Map && res['next'] == '/addItem') {
+                    await Navigator.pushNamed(context, '/addItem');
+                    if (!mounted) return;
+                    await _refreshItems();
+                  } else {
+                    setState(() {});
+                  }
+                  return;
                 }
-                return;
-              }
-              Navigator.pushNamed(context, '/addItem').then((_) => _refreshItems());
-            },
-          ),
+                Navigator.pushNamed(context, '/addItem').then((_) => _refreshItems());
+              },
+            ),
           if (!_isAuthenticated)
             TextButton(
               onPressed: () async {
@@ -132,20 +146,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 if (!mounted) return;
                 setState(() {});
               },
-              child: Text(
-                context.l10n.login,
-                style: const TextStyle(color: Colors.white),
-              ),
+              child: Text(context.l10n.login),
             ),
         ],
       ),
-      backgroundColor: Color(0xFFBDFF6C),
-      body: pages[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
-        onTap: (index) {
+      body: SafeArea(
+        child: IndexedStack(
+          index: _currentIndex,
+          children: pages,
+        ),
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (index) {
           if (index != 0 && !_isAuthenticated) {
             Navigator.pushNamed(
               context,
@@ -168,21 +181,25 @@ class _HomeScreenState extends State<HomeScreen> {
           }
           setState(() => _currentIndex = index);
         },
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
+        destinations: [
+          NavigationDestination(
+            icon: const Icon(Icons.home_outlined),
+            selectedIcon: const Icon(Icons.home),
             label: context.l10n.home,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat),
+          NavigationDestination(
+            icon: const Icon(Icons.chat_bubble_outline),
+            selectedIcon: const Icon(Icons.chat_bubble),
             label: context.l10n.chats,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.list),
+          NavigationDestination(
+            icon: const Icon(Icons.inventory_2_outlined),
+            selectedIcon: const Icon(Icons.inventory_2),
             label: context.l10n.myItems,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
+          NavigationDestination(
+            icon: const Icon(Icons.person_outline),
+            selectedIcon: const Icon(Icons.person),
             label: context.l10n.profile,
           ),
         ],
@@ -273,70 +290,75 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final locale = _getLocale();
+    final scheme = Theme.of(context).colorScheme;
 
     return Column(
       children: [
         // Кнопка фильтров
-        Container(
-          color: Colors.white,
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    setState(() {
-                      _showFilters = !_showFilters;
-                      if (_showFilters) {
-                        _tempCategory = widget.selectedCategory;
-                        _tempDateFrom = widget.dateFrom;
-                        _tempDateTo = widget.dateTo;
-                      }
-                    });
-                  },
-                  icon: Icon(
-                    _showFilters ? Icons.filter_list_off : Icons.filter_list,
-                    size: 20,
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          _showFilters = !_showFilters;
+                          if (_showFilters) {
+                            _tempCategory = widget.selectedCategory;
+                            _tempDateFrom = widget.dateFrom;
+                            _tempDateTo = widget.dateTo;
+                          }
+                        });
+                      },
+                      icon: Icon(
+                        _showFilters ? Icons.filter_list_off : Icons.filter_list,
+                        size: 20,
+                      ),
+                      label: Text(context.l10n.filters),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: _hasActiveFilters ? scheme.primary : scheme.onSurfaceVariant,
+                      ),
+                    ),
                   ),
-                  label: Text(context.l10n.filters),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: _hasActiveFilters ? Colors.blue : Colors.grey[700],
-                  ),
-                ),
+                  if (_hasActiveFilters) ...[
+                    const SizedBox(width: 8),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _tempCategory = null;
+                          _tempDateFrom = null;
+                          _tempDateTo = null;
+                        });
+                        widget.onResetFilters();
+                      },
+                      child: Text(context.l10n.resetFilters),
+                    ),
+                  ],
+                ],
               ),
-              if (_hasActiveFilters) ...[
-                SizedBox(width: 8),
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      _tempCategory = null;
-                      _tempDateFrom = null;
-                      _tempDateTo = null;
-                    });
-                    widget.onResetFilters();
-                  },
-                  child: Text(context.l10n.resetFilters),
-                ),
-              ],
-            ],
+            ),
           ),
         ),
 
         // Панель фильтров
         if (_showFilters)
-          Container(
-            color: Colors.grey[100],
-            padding: EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
                 // Категория
                 DropdownButtonFormField<String>(
                   value: _tempCategory,
                   decoration: InputDecoration(
                     labelText: context.l10n.category,
-                    border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   ),
                   items: [
                     DropdownMenuItem<String>(
@@ -356,7 +378,7 @@ class _HomePageState extends State<HomePage> {
                     });
                   },
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
 
                 // Даты
                 Row(
@@ -382,7 +404,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ],
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
 
                 // Кнопки применить/сбросить
                 Row(
@@ -402,7 +424,7 @@ class _HomePageState extends State<HomePage> {
                         child: Text(context.l10n.applyFilters),
                       ),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     OutlinedButton(
                       onPressed: () {
                         setState(() {
@@ -415,7 +437,9 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ],
                 ),
-              ],
+                  ],
+                ),
+              ),
             ),
           ),
 
@@ -445,7 +469,12 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       Padding(
                         padding: const EdgeInsets.all(16),
-                        child: Text(context.l10n.failedToLoadItems(details)),
+                        child: Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Text(context.l10n.failedToLoadItems(details)),
+                          ),
+                        ),
                       ),
                     ],
                   );
@@ -456,42 +485,49 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       Padding(
                         padding: const EdgeInsets.all(16),
-                        child: Text(
-                          _hasActiveFilters
-                              ? context.l10n.noItemsMatchFilter
-                              : context.l10n.noItemsYet,
+                        child: Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Text(
+                              _hasActiveFilters
+                                  ? context.l10n.noItemsMatchFilter
+                                  : context.l10n.noItemsYet,
+                            ),
+                          ),
                         ),
                       ),
                     ],
                   );
                 }
                 return ListView.builder(
-                  padding: EdgeInsets.all(8),
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
                   itemCount: items.length,
                   itemBuilder: (context, index) {
                     final item = items[index];
+                    final statusBg = item.claimed ? scheme.tertiaryContainer : scheme.primaryContainer;
+                    final statusFg = item.claimed ? scheme.onTertiaryContainer : scheme.onPrimaryContainer;
                     return Card(
-                      margin: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      margin: const EdgeInsets.only(bottom: 12),
                       child: ListTile(
                         leading: CircleAvatar(
-                          backgroundColor: item.claimed ? Colors.green : Colors.orange,
+                          backgroundColor: statusBg,
+                          foregroundColor: statusFg,
                           child: Icon(
                             item.claimed ? Icons.check : Icons.schedule,
-                            color: Colors.white,
                           ),
                         ),
                         title: Text(
                           item.title,
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            SizedBox(height: 4),
+                            const SizedBox(height: 6),
                             Row(
                               children: [
-                                Icon(Icons.location_on, size: 14, color: Colors.grey),
-                                SizedBox(width: 4),
+                                Icon(Icons.location_on, size: 14, color: scheme.onSurfaceVariant),
+                                const SizedBox(width: 4),
                                 Expanded(
                                   child: Text(
                                     item.location,
@@ -501,41 +537,41 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               ],
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 6),
                             Row(
                               children: [
                                 // Категория
                                 Container(
                                   padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                   decoration: BoxDecoration(
-                                    color: Colors.blue[50],
+                                    color: scheme.surfaceContainerHighest,
                                     borderRadius: BorderRadius.circular(4),
                                   ),
                                   child: Text(
                                     item.getCategoryName(locale),
-                                    style: TextStyle(fontSize: 11, color: Colors.blue[700]),
+                                    style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant),
                                   ),
                                 ),
-                                SizedBox(width: 8),
+                                const SizedBox(width: 8),
                                 // Статус
                                 Icon(
                                   item.claimed ? Icons.verified : Icons.pending,
                                   size: 14,
-                                  color: item.claimed ? Colors.green : Colors.orange,
+                                  color: item.claimed ? scheme.tertiary : scheme.primary,
                                 ),
-                                SizedBox(width: 4),
+                                const SizedBox(width: 4),
                                 Text(
                                   item.claimed ? context.l10n.claimed : context.l10n.available,
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color: item.claimed ? Colors.green : Colors.orange,
+                                    color: scheme.onSurfaceVariant,
                                   ),
                                 ),
                               ],
                             ),
                           ],
                         ),
-                        trailing: Icon(Icons.chevron_right),
+                        trailing: const Icon(Icons.chevron_right),
                         onTap: () {
                           Navigator.pushNamed(
                             context,

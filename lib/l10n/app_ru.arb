@@ -46,6 +46,8 @@
   "claimItemToStartChatting": "Отправьте заявку на вещь, чтобы начать чат",
   "failedToLoadMessages": "Не удалось загрузить сообщения: {error}",
   "failedToSendMessage": "Не удалось отправить сообщение: {error}",
+  "chatAccessDenied": "У вас нет доступа к этому чату.",
+  "chatAccessDeniedHint": "Только табушы и заявитель могут переписываться по этому предмету.",
   "noMessagesYet": "Сообщений пока нет. Начните диалог!",
   "noMessagesYetShort": "Сообщений нет",
   "typeMessageHint": "Введите сообщение...",

@@ -7,6 +7,8 @@ import '../services/auth_service.dart';
 import '../utils/locale_controller.dart';
 
 class AuthScreen extends StatefulWidget {
+  const AuthScreen({super.key});
+
   @override
   State<AuthScreen> createState() => _AuthScreenState();
 }
@@ -38,50 +40,121 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(context.l10n.register)),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: emailController,
-              decoration: InputDecoration(labelText: context.l10n.email),
-            ),
-            TextField(
-              controller: passwordController,
-              decoration: InputDecoration(labelText: context.l10n.password),
-              obscureText: true,
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                try {
-                  await authService.register(
-                    emailController.text.trim(),
-                    passwordController.text,
-                  );
-                  if (!mounted) return;
-                  await FirebaseAuth.instance.currentUser?.getIdToken(true);
-                  await GetIt.I<LocaleController>().loadInitial();
+    final scheme = Theme.of(context).colorScheme;
 
-                  if (!mounted) return;
-                  final args = _getNavArgs();
-                  final next = args['next'];
-                  final nextArgs = args['nextArgs'];
-                  if (next is String && next.isNotEmpty) {
-                    Navigator.pushNamedAndRemoveUntil(context, next, (r) => false, arguments: nextArgs);
-                  } else {
-                    Navigator.pushNamedAndRemoveUntil(context, '/home', (r) => false);
-                  }
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(context.l10n.registrationFailed(e.toString()))),
-                  );
-                }
-              },
-              child: Text(context.l10n.register),
-            ),
-          ],
+    Future<void> submit() async {
+      try {
+        await authService.register(
+          emailController.text.trim(),
+          passwordController.text,
+        );
+        if (!mounted) return;
+        await FirebaseAuth.instance.currentUser?.getIdToken(true);
+        await GetIt.I<LocaleController>().loadInitial();
+
+        if (!mounted) return;
+        final args = _getNavArgs();
+        final next = args['next'];
+        final nextArgs = args['nextArgs'];
+        if (next is String && next.isNotEmpty) {
+          Navigator.pushNamedAndRemoveUntil(context, next, (r) => false, arguments: nextArgs);
+        } else {
+          Navigator.pushNamedAndRemoveUntil(context, '/home', (r) => false);
+        }
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.registrationFailed(e.toString()))),
+        );
+      }
+    }
+
+    return Scaffold(
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 420),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Center(
+                          child: Column(
+                            children: [
+                              Image.asset('assets/logo.png', width: 56, height: 56),
+                              const SizedBox(height: 12),
+                              Text(
+                                context.l10n.appTitle,
+                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                context.l10n.register,
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      color: scheme.onSurfaceVariant,
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                TextFormField(
+                                  controller: emailController,
+                                  keyboardType: TextInputType.emailAddress,
+                                  autofillHints: const [AutofillHints.email],
+                                  textInputAction: TextInputAction.next,
+                                  decoration: InputDecoration(
+                                    labelText: context.l10n.email,
+                                    prefixIcon: const Icon(Icons.email_outlined),
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                TextFormField(
+                                  controller: passwordController,
+                                  obscureText: true,
+                                  autofillHints: const [AutofillHints.newPassword],
+                                  textInputAction: TextInputAction.done,
+                                  decoration: InputDecoration(
+                                    labelText: context.l10n.password,
+                                    prefixIcon: const Icon(Icons.lock_outline),
+                                  ),
+                                  onFieldSubmitted: (_) => submit(),
+                                ),
+                                const SizedBox(height: 16),
+                                ElevatedButton(
+                                  onPressed: submit,
+                                  child: Text(context.l10n.register),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        TextButton(
+                          onPressed: () => Navigator.pushReplacementNamed(context, '/login', arguments: _getNavArgs()),
+                          child: Text(context.l10n.login),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );

@@ -170,6 +170,13 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get chatAccessDenied => 'У вас нет доступа к этому чату.';
+
+  @override
+  String get chatAccessDeniedHint =>
+      'Только табушы и заявитель могут переписываться по этому предмету.';
+
+  @override
   String get noMessagesYet => 'Сообщений пока нет. Начните диалог!';
 
   @override

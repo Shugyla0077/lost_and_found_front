@@ -46,6 +46,8 @@
   "claimItemToStartChatting": "Claim an item to start chatting",
   "failedToLoadMessages": "Failed to load messages: {error}",
   "failedToSendMessage": "Failed to send message: {error}",
+  "chatAccessDenied": "You don't have access to this chat.",
+  "chatAccessDeniedHint": "Only the finder and the claimant can chat about this item.",
   "noMessagesYet": "No messages yet. Start the conversation!",
   "noMessagesYetShort": "No messages yet",
   "typeMessageHint": "Type a message...",

@@ -7,6 +7,11 @@ import '../l10n/l10n.dart';
 import 'chat_messages_screen.dart';
 
 class ChatScreen extends StatefulWidget {
+  const ChatScreen({super.key, this.embedded = false, this.active = true});
+
+  final bool embedded;
+  final bool active;
+
   @override
   State<ChatScreen> createState() => _ChatScreenState();
 }
@@ -15,11 +20,27 @@ class _ChatScreenState extends State<ChatScreen> {
   final ChatService chatService = GetIt.I<ChatService>();
   List<Chat> chats = [];
   bool loading = true;
+  bool _hasLoadedOnce = false;
 
   @override
   void initState() {
     super.initState();
-    _loadChats();
+    if (widget.active) {
+      _loadChats();
+      _hasLoadedOnce = true;
+    } else {
+      loading = false;
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant ChatScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!oldWidget.active && widget.active && !_hasLoadedOnce) {
+      setState(() => loading = true);
+      _hasLoadedOnce = true;
+      _loadChats();
+    }
   }
 
   Future<void> _loadChats() async {
@@ -43,25 +64,26 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(context.l10n.chats)),
-      body: loading
+    final body = loading
           ? Center(child: CircularProgressIndicator())
           : chats.isEmpty
               ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.chat_bubble_outline, size: 64, color: Colors.grey),
+                      Icon(Icons.chat_bubble_outline, size: 64, color: Theme.of(context).colorScheme.onSurfaceVariant),
                       SizedBox(height: 16),
                       Text(
                         context.l10n.noChatsYet,
-                        style: TextStyle(fontSize: 18, color: Colors.grey),
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
                       SizedBox(height: 8),
                       Text(
                         context.l10n.claimItemToStartChatting,
-                        style: TextStyle(fontSize: 14, color: Colors.grey),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                        textAlign: TextAlign.center,
                       ),
                     ],
                   ),
@@ -69,45 +91,56 @@ class _ChatScreenState extends State<ChatScreen> {
               : RefreshIndicator(
                   onRefresh: _loadChats,
                   child: ListView.builder(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
                     itemCount: chats.length,
                     itemBuilder: (context, index) {
                       final chat = chats[index];
-                      return ListTile(
-                        leading: CircleAvatar(
-                          child: Icon(Icons.inventory_2),
-                        ),
-                        title: Text(
-                          chat.itemTitle,
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text(
-                          chat.lastMessage ?? context.l10n.noMessagesYetShort,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(color: Colors.grey[600]),
-                        ),
-                        trailing: chat.lastMessageAt != null
-                            ? Text(
-                                _formatTime(chat.lastMessageAt!),
-                                style: TextStyle(fontSize: 12, color: Colors.grey),
-                              )
-                            : null,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ChatMessagesScreen(
-                                itemId: chat.itemId,
-                                itemTitle: chat.itemTitle,
-                              ),
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Card(
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                              foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+                              child: const Icon(Icons.inventory_2),
                             ),
-                          ).then((_) => _loadChats()); // Refresh after returning
-                        },
+                            title: Text(
+                              chat.itemTitle,
+                              style: const TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                            subtitle: Text(
+                              chat.lastMessage ?? context.l10n.noMessagesYetShort,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            trailing: chat.lastMessageAt != null
+                                ? Text(
+                                    _formatTime(chat.lastMessageAt!),
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        ),
+                                  )
+                                : null,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ChatMessagesScreen(
+                                    itemId: chat.itemId,
+                                    itemTitle: chat.itemTitle,
+                                  ),
+                                ),
+                              ).then((_) => _loadChats()); // Refresh after returning
+                            },
+                          ),
+                        ),
                       );
                     },
                   ),
-                ),
-    );
+                );
+
+    if (widget.embedded) return body;
+    return Scaffold(appBar: AppBar(title: Text(context.l10n.chats)), body: body);
   }
 
   String _formatTime(DateTime dateTime) {

@@ -172,6 +172,13 @@ class AppLocalizationsKk extends AppLocalizations {
   }
 
   @override
+  String get chatAccessDenied => 'Бұл чатқа қолжетімділік жоқ.';
+
+  @override
+  String get chatAccessDeniedHint =>
+      'Тек табушы мен өтініш берген адам ғана осы зат бойынша жаза алады.';
+
+  @override
   String get noMessagesYet => 'Хабарламалар жоқ. Диалогты бастаңыз!';
 
   @override

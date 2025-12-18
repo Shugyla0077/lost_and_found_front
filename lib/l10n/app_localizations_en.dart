@@ -169,6 +169,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get chatAccessDenied => 'You don\'t have access to this chat.';
+
+  @override
+  String get chatAccessDeniedHint =>
+      'Only the finder and the claimant can chat about this item.';
+
+  @override
   String get noMessagesYet => 'No messages yet. Start the conversation!';
 
   @override
