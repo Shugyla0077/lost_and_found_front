@@ -1,8 +1,10 @@
 // lib/screens/auth_screen.dart
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../l10n/l10n.dart';
 import '../services/auth_service.dart';
+import '../utils/locale_controller.dart';
 
 class AuthScreen extends StatefulWidget {
   @override
@@ -13,6 +15,12 @@ class _AuthScreenState extends State<AuthScreen> {
   final AuthService authService = GetIt.I<AuthService>();
   late final TextEditingController emailController;
   late final TextEditingController passwordController;
+
+  Map<String, Object?> _getNavArgs() {
+    final raw = ModalRoute.of(context)?.settings.arguments;
+    if (raw is Map) return raw.cast<String, Object?>();
+    return const {};
+  }
 
   @override
   void initState() {
@@ -53,7 +61,18 @@ class _AuthScreenState extends State<AuthScreen> {
                     passwordController.text,
                   );
                   if (!mounted) return;
-                  Navigator.pushReplacementNamed(context, '/login');
+                  await FirebaseAuth.instance.currentUser?.getIdToken(true);
+                  await GetIt.I<LocaleController>().loadInitial();
+
+                  if (!mounted) return;
+                  final args = _getNavArgs();
+                  final next = args['next'];
+                  final nextArgs = args['nextArgs'];
+                  if (next is String && next.isNotEmpty) {
+                    Navigator.pushNamedAndRemoveUntil(context, next, (r) => false, arguments: nextArgs);
+                  } else {
+                    Navigator.pushNamedAndRemoveUntil(context, '/home', (r) => false);
+                  }
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(context.l10n.registrationFailed(e.toString()))),

@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/item.dart';
 import '../services/item_service.dart';
 import '../l10n/l10n.dart';
@@ -18,6 +19,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final ItemService itemService = GetIt.I<ItemService>();
   int _currentIndex = 0;
   late Future<List<Item>> _itemsFuture;
+  bool _didApplyInitialArgs = false;
 
   // Фильтры
   String? _selectedCategory;
@@ -30,6 +32,21 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadItems();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_didApplyInitialArgs) return;
+    _didApplyInitialArgs = true;
+
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args is Map && args['tab'] is int) {
+      final tab = args['tab'] as int;
+      if (tab >= 0 && tab <= 3 && (tab == 0 || _isAuthenticated)) {
+        setState(() => _currentIndex = tab);
+      }
+    }
+  }
+
   void _loadItems() {
     _itemsFuture = itemService.fetchItems(
       category: _selectedCategory,
@@ -37,6 +54,8 @@ class _HomeScreenState extends State<HomeScreen> {
       dateTo: _dateTo,
     );
   }
+
+  bool get _isAuthenticated => FirebaseAuth.instance.currentUser != null;
 
   Future<void> _refreshItems() async {
     setState(() {
@@ -86,10 +105,38 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           IconButton(
             icon: Icon(Icons.add),
-            onPressed: () {
+            onPressed: () async {
+              if (!_isAuthenticated) {
+                final res = await Navigator.pushNamed(
+                  context,
+                  '/login',
+                  arguments: {'popOnSuccess': true, 'next': '/addItem'},
+                );
+                if (!mounted) return;
+                if (res is Map && res['next'] == '/addItem') {
+                  await Navigator.pushNamed(context, '/addItem');
+                  if (!mounted) return;
+                  await _refreshItems();
+                } else {
+                  setState(() {});
+                }
+                return;
+              }
               Navigator.pushNamed(context, '/addItem').then((_) => _refreshItems());
             },
           ),
+          if (!_isAuthenticated)
+            TextButton(
+              onPressed: () async {
+                await Navigator.pushNamed(context, '/login', arguments: {'popOnSuccess': true});
+                if (!mounted) return;
+                setState(() {});
+              },
+              child: Text(
+                context.l10n.login,
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
         ],
       ),
       backgroundColor: Color(0xFFBDFF6C),
@@ -99,9 +146,27 @@ class _HomeScreenState extends State<HomeScreen> {
         selectedItemColor: Colors.blue,
         unselectedItemColor: Colors.grey,
         onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
+          if (index != 0 && !_isAuthenticated) {
+            Navigator.pushNamed(
+              context,
+              '/login',
+              arguments: {'popOnSuccess': true, 'next': '/home', 'nextArgs': {'tab': index}},
+            ).then((res) {
+              if (!mounted) return;
+              if (res is Map && res['next'] == '/home') {
+                final nextArgs = res['nextArgs'];
+                if (nextArgs is Map && nextArgs['tab'] is int) {
+                  final tab = nextArgs['tab'] as int;
+                  if (tab >= 0 && tab <= 3) {
+                    setState(() => _currentIndex = tab);
+                  }
+                }
+              }
+              setState(() {});
+            });
+            return;
+          }
+          setState(() => _currentIndex = index);
         },
         items: [
           BottomNavigationBarItem(

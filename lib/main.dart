@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:app_links/app_links.dart';
 import 'dart:async';
 import 'package:url_launcher/url_launcher.dart';
@@ -119,18 +120,66 @@ class _MyAppState extends State<MyApp> {
           // Default language is English (per requirements).
           return widget.localeController.locale;
         },
-        initialRoute: '/login',
+        initialRoute: '/home',
         routes: {
           '/login': (context) => LoginScreen(),
           '/home': (context) => HomeScreen(),
-          '/addItem': (context) => AddItemScreen(),
+          '/addItem': (context) => RequireAuth(child: AddItemScreen(), nextRoute: '/addItem'),
           '/auth': (context) => AuthScreen(),
           '/itemDetail': (context) => ItemDetailScreen(item: ModalRoute.of(context)!.settings.arguments as Item),
-          '/chat': (context) => ChatScreen(), // ChatScreen route
-          '/claimedItems': (context) => const ClaimedItemsScreen(),
-          '/rewardPayment': (context) => const RewardPaymentScreen(),
+          '/chat': (context) => RequireAuth(child: ChatScreen(), nextRoute: '/chat'),
+          '/claimedItems': (context) => RequireAuth(child: ClaimedItemsScreen(), nextRoute: '/claimedItems'),
+          '/rewardPayment': (context) => RequireAuth(child: RewardPaymentScreen(), nextRoute: '/rewardPayment'),
         },
       ),
     );
+  }
+}
+
+class RequireAuth extends StatefulWidget {
+  const RequireAuth({
+    super.key,
+    required this.child,
+    required this.nextRoute,
+    this.nextArgs,
+  });
+
+  final Widget child;
+  final String nextRoute;
+  final Object? nextArgs;
+
+  @override
+  State<RequireAuth> createState() => _RequireAuthState();
+}
+
+class _RequireAuthState extends State<RequireAuth> {
+  bool _redirecting = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null && !_redirecting) {
+      _redirecting = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        Navigator.pushReplacementNamed(
+          context,
+          '/login',
+          arguments: {'next': widget.nextRoute, 'nextArgs': widget.nextArgs},
+        );
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+    return widget.child;
   }
 }

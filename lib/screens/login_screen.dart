@@ -16,6 +16,21 @@ class _LoginScreenState extends State<LoginScreen> {
   late final TextEditingController emailController;
   late final TextEditingController passwordController;
 
+  Map<String, Object?> _getNavArgs() {
+    final raw = ModalRoute.of(context)?.settings.arguments;
+    if (raw is Map) {
+      final map = raw.cast<String, Object?>();
+      return map;
+    }
+    return const {};
+  }
+
+  bool get _popOnSuccess {
+    final args = _getNavArgs();
+    final v = args['popOnSuccess'];
+    return v == true;
+  }
+
   Future<void> _resetPassword() async {
     final initialEmail = emailController.text.trim();
     var enteredEmail = initialEmail;
@@ -121,7 +136,18 @@ class _LoginScreenState extends State<LoginScreen> {
                   await GetIt.I<LocaleController>().loadInitial();
 
                   if (!mounted) return;
-                  Navigator.pushReplacementNamed(context, '/home');
+                  final args = _getNavArgs();
+                  final next = args['next'];
+                  final nextArgs = args['nextArgs'];
+                  if (_popOnSuccess) {
+                    Navigator.pop(context, {'next': next, 'nextArgs': nextArgs});
+                    return;
+                  }
+                  if (next is String && next.isNotEmpty) {
+                    Navigator.pushReplacementNamed(context, next, arguments: nextArgs);
+                  } else {
+                    Navigator.pushReplacementNamed(context, '/home');
+                  }
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(context.l10n.loginFailed(e.toString()))),
@@ -136,7 +162,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             TextButton(
               onPressed: () {
-                Navigator.pushNamed(context, '/auth');
+                Navigator.pushNamed(context, '/auth', arguments: _getNavArgs());
               },
               child: Text(context.l10n.noAccountRegister),
             ),

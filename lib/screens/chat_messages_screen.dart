@@ -27,6 +27,18 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen> {
   void initState() {
     super.initState();
     currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    if (currentUserId == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        Navigator.pushReplacementNamed(
+          context,
+          '/login',
+          arguments: {'next': '/home', 'nextArgs': {'tab': 1}},
+        );
+      });
+      loading = false;
+      return;
+    }
     _loadMessages();
   }
 

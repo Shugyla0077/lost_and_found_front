@@ -22,6 +22,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
   bool _loading = false;
 
   String? get _currentUserId => FirebaseAuth.instance.currentUser?.uid;
+  bool get _isAuthenticated => _currentUserId != null;
 
   bool get _isOwner => _currentUserId != null && _item.finderId == _currentUserId;
 
@@ -44,6 +45,16 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
   }
 
   Future<void> _claimItem() async {
+    if (!_isAuthenticated) {
+      await Navigator.pushNamed(
+        context,
+        '/login',
+        arguments: {'popOnSuccess': true},
+      );
+      if (!mounted) return;
+      setState(() {});
+      return;
+    }
     if (_isOwner) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(context.l10n.cannotClaimOwnItem)),
@@ -135,7 +146,17 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
               Text(context.l10n.alreadyClaimed, style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
               ElevatedButton.icon(
-                onPressed: () {
+                onPressed: () async {
+                  if (!_isAuthenticated) {
+                    await Navigator.pushNamed(
+                      context,
+                      '/login',
+                      arguments: {'popOnSuccess': true},
+                    );
+                    if (!mounted) return;
+                    setState(() {});
+                    return;
+                  }
                   Navigator.push(
                     context,
                     MaterialPageRoute(
